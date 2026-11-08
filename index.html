@@ -2,131 +2,325 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mes manhwas</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f4f2f9">
+<title>Manhwa</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --paper: #eeeaf7; --card: #fbfaff; --ink: #2a1b3d; --muted: #6f6486; --line: #d6cfe6;
-    --pink: #d92a73; --on-pink: #ffffff; --mint: #1f9e7a;
+    --bg: #f4f2f9; --surface: #ffffff; --surface-2: #faf8fe; --ink: #1d1730; --muted: #6b6480; --line: #e4dff0;
+    --accent: #6c4bf5; --on-accent: #ffffff; --ok: #1f9e7a; --danger: #d12a4f;
+    --radius: 14px; --shadow: 0 1px 2px rgba(29,23,48,.06), 0 8px 24px rgba(29,23,48,.07);
+    --card-w: 156px; --appbar-h: 64px;
     --font: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --paper: #17121f; --card: #211a2e; --ink: #efeaf8; --muted: #a79bbd; --line: #3a2f4d;
-      --pink: #ff6aa3; --on-pink: #1a0f1f; --mint: #4cd3a8;
-    }
+  [data-theme="dark"] {
+    --bg: #110e18; --surface: #1a1624; --surface-2: #211c2e; --ink: #f1edf9; --muted: #a39bb8; --line: #2e2740;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35); color-scheme: dark;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); line-height: 1.45; }
-  main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 80px; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); line-height: 1.45; }
   button, input, select { font: inherit; color: inherit; }
-  :focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+  button { cursor: pointer; }
+  a { color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
   [hidden] { display: none !important; }
+  svg.i { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+  svg.i.fill { fill: currentColor; }
 
-  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 18px; }
-  h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
-  .tabs { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
-  .tab { background: transparent; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 15px; cursor: pointer; font-weight: 600; }
-  .tab[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
-  .badge { display: inline-block; min-width: 1.4em; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--pink); color: var(--on-pink); font-size: .8rem; text-align: center; }
-  .who { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--muted); }
+  /* ---------- Barre du haut : logo | navigation centrée | notifications ---------- */
+  .appbar {
+    position: sticky; top: 0; z-index: 30; height: var(--appbar-h); padding: 0 24px;
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px;
+    background: color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.25rem; letter-spacing: -.02em; justify-self: start; }
+  .brand .logo { width: 34px; height: 34px; border-radius: 10px; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; }
+  .brand .logo svg { width: 20px; height: 20px; }
+  .nav { display: flex; gap: 4px; padding: 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 999px; }
+  .nav button { display: flex; align-items: center; gap: 8px; padding: 8px 18px; border: 0; border-radius: 999px; background: transparent; color: var(--muted); font-weight: 600; }
+  .nav button svg { width: 18px; height: 18px; }
+  .nav button:hover { color: var(--ink); }
+  .nav button[aria-current="page"] { background: var(--accent); color: var(--on-accent); }
+  .actions { justify-self: end; display: flex; align-items: center; gap: 8px; }
+  .icon-btn { position: relative; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); display: grid; place-items: center; }
+  .icon-btn:hover { border-color: var(--accent); }
+  .dot { position: absolute; top: -3px; right: -3px; min-width: 19px; height: 19px; padding: 0 5px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: .72rem; font-weight: 700; display: grid; place-items: center; border: 2px solid var(--bg); }
 
-  .btn { background: var(--ink); color: var(--paper); border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 600; }
-  .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
-  .btn.pink { background: var(--pink); color: var(--on-pink); }
-  input, select { background: var(--card); border: 1.5px solid var(--line); border-radius: 8px; padding: 9px 11px; width: 100%; }
-  label { display: block; font-size: .88rem; color: var(--muted); margin-bottom: 4px; }
-  .panel { background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 18px; max-width: 460px; }
-  .msg { min-height: 1.3em; font-size: .9rem; color: var(--pink); margin: 8px 0 0; }
-  .msg.ok { color: var(--mint); }
+  /* Barre du bas (téléphone) */
+  .tabbar { display: none; position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; grid-template-columns: repeat(4, 1fr);
+    background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom); }
+  .tabbar button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 4px 8px; border: 0; background: transparent; color: var(--muted); font-size: .72rem; font-weight: 600; }
+  .tabbar button[aria-current="page"] { color: var(--accent); }
 
-  .toolbar { display: grid; grid-template-columns: 1fr 200px; gap: 10px; margin-bottom: 8px; }
-  .count { color: var(--muted); font-size: .9rem; margin-bottom: 14px; }
+  main { max-width: 1120px; margin: 0 auto; padding: 26px 24px 56px; }
+  .view-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+  h2 { margin: 0; font-size: 1.7rem; font-weight: 800; letter-spacing: -.02em; }
+  .sub { color: var(--muted); font-size: .92rem; margin-top: 2px; }
 
-  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 14px; }
-  .card { background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
-  .cover { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px; background: var(--line); display: block; }
-  .cover.empty { display: grid; place-items: center; font-weight: 800; font-size: 2.4rem; color: var(--muted); }
-  .t { margin: 0; font-size: .98rem; font-weight: 800; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
-  .srcs { display: flex; flex-direction: column; gap: 5px; }
-  .src { display: flex; border: 1.5px solid var(--line); border-radius: 7px; overflow: hidden; font-size: .82rem; }
-  .src a { padding: 5px 8px; color: inherit; text-decoration: none; }
-  .src a:hover { background: var(--line); }
-  .src .site { flex: 1; font-weight: 600; }
-  .src .ch { border-left: 1.5px solid var(--line); color: var(--muted); white-space: nowrap; }
-  .src.best { border-color: var(--mint); }
-  .src.best .ch { color: var(--mint); font-weight: 600; }
-  .follow { margin-top: auto; background: transparent; border: 1.5px solid var(--pink); color: var(--pink); border-radius: 8px; padding: 7px; cursor: pointer; font-weight: 700; }
-  .follow[aria-pressed="true"] { background: var(--pink); color: var(--on-pink); }
-  .more { display: block; margin: 22px auto 0; }
-  .empty-state { color: var(--muted); padding: 30px 6px; }
+  /* ---------- Boutons, champs, puces ---------- */
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 10px 18px; border-radius: 12px; border: 1.5px solid var(--accent);
+    background: var(--accent); color: var(--on-accent); font-weight: 700; text-decoration: none; }
+  .btn.secondary { background: var(--surface); color: var(--ink); border-color: var(--line); }
+  .btn.secondary:hover { border-color: var(--accent); }
+  .btn.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+  .btn.small { padding: 7px 12px; font-size: .88rem; border-radius: 10px; }
+  .btn[aria-disabled="true"] { opacity: .5; pointer-events: none; }
+  input[type=text], input[type=search], input[type=email], input[type=password], input[type=number], select {
+    width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); }
+  label.l { display: block; font-size: .85rem; color: var(--muted); margin-bottom: 5px; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px; border-radius: 999px; border: 1.5px solid var(--line); background: var(--surface);
+    font-size: .88rem; font-weight: 600; color: var(--ink); }
+  .chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .chip.removable::after { content: "×"; font-size: 1.1rem; line-height: 1; opacity: .7; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .empty-state { color: var(--muted); padding: 44px 8px; text-align: center; grid-column: 1 / -1; }
+  .msg { min-height: 1.3em; font-size: .9rem; color: var(--danger); margin: 8px 0 0; }
 
-  .event { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px; margin-bottom: 8px; max-width: 700px; }
-  .event.unread { border-left: 6px solid var(--pink); }
-  .event .cover { width: 52px; aspect-ratio: 2 / 3; }
-  .event .cover.empty { font-size: 1.3rem; }
-  .event .what { font-weight: 800; }
-  .event .when { color: var(--muted); font-size: .85rem; }
-  .notif-box { margin: 0 0 16px; color: var(--muted); font-size: .9rem; }
-  @media (max-width: 560px) { .toolbar { grid-template-columns: 1fr; } }
+  /* ---------- Recherche ---------- */
+  .searchbar { display: grid; grid-template-columns: 1fr auto; gap: 10px; }
+  .field { position: relative; }
+  .field svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+  .field input { padding-left: 46px; height: 48px; font-size: 1rem; }
+  #btn-filters { height: 48px; position: relative; }
+  #btn-filters .count { min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px; background: var(--accent); color: var(--on-accent); font-size: .75rem; display: grid; place-items: center; }
+  #btn-filters .count[hidden] { display: none; }
+  #active { margin: 12px 0 0; }
+  .resultline { display: flex; justify-content: space-between; color: var(--muted); font-size: .9rem; margin: 16px 0 14px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr)); gap: 22px 16px; }
+  .card { display: flex; flex-direction: column; gap: 9px; min-width: 0; text-decoration: none; color: inherit; }
+  .cover-wrap { position: relative; border-radius: 12px; overflow: hidden; aspect-ratio: 2 / 3; background: var(--line); box-shadow: var(--shadow); }
+  .cover-wrap::after { content: ""; position: absolute; inset: auto 0 0 0; height: 46%; background: linear-gradient(transparent, rgba(10,6,20,.72)); pointer-events: none; }
+  .cover { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .25s ease; }
+  .card:hover .cover { transform: scale(1.04); }
+  .cover.empty { display: grid; place-items: center; font-weight: 800; font-size: 2.6rem; color: var(--muted); background: var(--line); }
+  .tag { position: absolute; z-index: 2; top: 8px; left: 8px; padding: 3px 9px; border-radius: 999px; background: rgba(15,10,25,.72); color: #fff; font-size: .72rem; font-weight: 700; backdrop-filter: blur(4px); }
+  .tag.new { background: var(--accent); color: var(--on-accent); }
+  .mark { position: absolute; z-index: 2; top: -2px; right: 9px; color: var(--accent); filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
+  .mark svg { width: 26px; height: 32px; }
+  .chap { position: absolute; z-index: 2; left: 9px; bottom: 8px; color: #fff; font-size: .82rem; font-weight: 700; }
+  .card .title { margin: 0; font-size: .95rem; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .card .meta { margin: -4px 0 0; font-size: .8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  #sentinel { height: 1px; }
+  .more { display: flex; margin: 26px auto 0; }
+
+  /* ---------- Panneau Trier / Filtrer ---------- */
+  .scrim { position: fixed; inset: 0; z-index: 60; background: rgba(15,10,25,.5); display: flex; justify-content: flex-end; }
+  .sheet { background: var(--surface); width: min(430px, 100%); height: 100%; display: flex; flex-direction: column; box-shadow: var(--shadow); }
+  .sheet-head, .sheet-foot { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+  .sheet-head { border-bottom: 1px solid var(--line); }
+  .sheet-head h3 { margin: 0; font-size: 1.15rem; }
+  .sheet-body { flex: 1; overflow: auto; padding: 4px 20px 20px; }
+  .sheet-foot { border-top: 1px solid var(--line); }
+  .sheet-foot .btn { flex: 1; }
+  .fsec { padding: 16px 0 6px; border-bottom: 1px solid var(--line); }
+  .fsec:last-child { border-bottom: 0; }
+  .fsec h4 { margin: 0 0 10px; font-size: .95rem; }
+  .fsec .hint { color: var(--muted); font-size: .82rem; margin: 8px 0 10px; }
+  .genre-cloud { max-height: 210px; overflow: auto; padding: 2px; margin-top: 10px; }
+  .seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface-2); }
+  .seg button { padding: 7px 14px; border: 0; border-radius: 9px; background: transparent; color: var(--muted); font-weight: 600; }
+  .seg button[aria-pressed="true"], .seg button[aria-selected="true"] { background: var(--accent); color: var(--on-accent); }
+
+  /* ---------- Fiche d'une série ---------- */
+  .overlay { position: fixed; inset: 0; z-index: 50; background: rgba(15,10,25,.58); display: grid; place-items: center; padding: 24px; overflow: auto; }
+  .panel { position: relative; width: min(980px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); }
+  .d-close { position: absolute; top: 14px; right: 14px; z-index: 3; }
+  .d-hero { display: grid; grid-template-columns: 230px 1fr; gap: 28px; padding: 30px 30px 8px; }
+  .d-cover { aspect-ratio: 2 / 3; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); background: var(--line); }
+  .d-cover .cover { transition: none; }
+  .d-info { min-width: 0; padding-right: 34px; }
+  .d-info h2 { font-size: 1.9rem; line-height: 1.15; overflow-wrap: anywhere; }
+  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+  .fact { padding: 4px 11px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: .85rem; font-weight: 600; }
+  .d-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .follow-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .d-sec { padding: 20px 30px; }
+  .d-sec h3 { margin: 0 0 12px; font-size: 1.05rem; }
+  .src-seg { display: flex; flex-wrap: wrap; gap: 8px; }
+  .src-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 10px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); text-align: left; }
+  .src-btn b { font-size: .95rem; }
+  .src-btn small { color: var(--muted); font-size: .8rem; }
+  .src-btn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .src-btn .best { color: var(--ok); font-weight: 700; }
+  .desc { white-space: pre-line; margin: 0; color: var(--ink); }
+  .desc.clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
+  .link { background: none; border: 0; color: var(--accent); font-weight: 700; padding: 8px 0 0; }
+  .ch-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .ch-head h3 { margin: 0; }
+  .ch-tools { display: flex; gap: 8px; align-items: center; }
+  .ch-tools input { width: 150px; padding: 8px 12px; }
+  .ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; max-height: 360px; overflow: auto; padding: 2px; }
+  .ch { display: block; padding: 9px 0; text-align: center; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface-2); font-weight: 700; font-size: .9rem; text-decoration: none; }
+  .ch:hover { border-color: var(--accent); }
+  .ch.read { color: var(--muted); background: transparent; font-weight: 500; }
+  .ch.read::after { content: " ✓"; font-size: .75rem; }
+  .ch.last { border-color: var(--accent); color: var(--accent); }
+  .note { color: var(--muted); font-size: .85rem; margin: 10px 0 0; }
+
+  /* ---------- Historique ---------- */
+  .day { margin: 22px 0 8px; font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: capitalize; }
+  .hrow { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 10px; margin-bottom: 8px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
+  .hrow:hover { border-color: var(--accent); }
+  .hrow .cover-wrap { width: 48px; border-radius: 8px; box-shadow: none; }
+  .hrow .cover-wrap::after { display: none; }
+  .hrow .cover.empty { font-size: 1.2rem; }
+  .h-title { font-weight: 700; }
+  .h-sub, .hrow time { color: var(--muted); font-size: .85rem; }
+
+  /* ---------- Paramètres ---------- */
+  .settings { max-width: 680px; margin: 0 auto; }
+  .block { background: var(--surface); border: 1px solid var(--line); border-radius: 18px; padding: 6px 22px; margin-bottom: 18px; }
+  .block h3 { margin: 16px 0 4px; font-size: 1.05rem; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 14px 0; border-top: 1px solid var(--line); }
+  .row.first { border-top: 0; }
+  .row .t b { display: block; }
+  .row .t span { color: var(--muted); font-size: .85rem; }
+  .row select { width: auto; min-width: 190px; }
+  .switch { position: relative; width: 48px; height: 28px; flex: none; border-radius: 999px; border: 0; background: var(--line); }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; transition: transform .18s ease; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+  .switch[aria-checked="true"] { background: var(--accent); }
+  .switch[aria-checked="true"]::after { transform: translateX(20px); }
+  .swatches { display: flex; gap: 10px; }
+  .swatch { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--surface); box-shadow: 0 0 0 1.5px var(--line); }
+  .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2.5px var(--ink); }
+
+  /* ---------- Notifications ---------- */
+  .bell-wrap { position: relative; }
+  .popover { position: absolute; right: 0; top: calc(100% + 10px); z-index: 70; width: min(400px, 92vw); max-height: 72vh; display: flex; flex-direction: column;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
+  .pop-head { display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .pop-head b { font-size: 1.05rem; }
+  .pop-list { overflow: auto; padding: 8px; }
+  .nrow { display: grid; grid-template-columns: 40px 1fr auto; gap: 12px; align-items: center; padding: 9px 10px; border-radius: 12px; text-decoration: none; position: relative; }
+  .nrow:hover { background: var(--surface-2); }
+  .nrow.unread::before { content: ""; position: absolute; left: 2px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: var(--accent); }
+  .nrow .cover-wrap { width: 40px; border-radius: 7px; box-shadow: none; }
+  .nrow .cover-wrap::after { display: none; }
+  .nrow .cover.empty { font-size: 1rem; }
+  .n-title { font-weight: 700; font-size: .92rem; line-height: 1.2; }
+  .n-sub { color: var(--muted); font-size: .8rem; }
+
+  /* ---------- Connexion, message flottant ---------- */
+  .login { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
+  .login-card { width: min(400px, 100%); background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 30px 28px; box-shadow: var(--shadow); }
+  .login-card .brand { justify-content: center; margin-bottom: 20px; }
+  .login-card .btn { width: 100%; margin-top: 16px; }
+  .toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); z-index: 90; background: var(--ink); color: var(--bg); padding: 10px 18px; border-radius: 999px; font-weight: 600; font-size: .9rem; box-shadow: var(--shadow); max-width: 92vw; }
+
+  /* ---------- Téléphone ---------- */
+  @media (max-width: 760px) {
+    .appbar { grid-template-columns: 1fr auto; padding: 0 16px; }
+    .appbar .nav { display: none; }
+    .tabbar { display: grid; }
+    main { padding: 20px 16px calc(92px + env(safe-area-inset-bottom)); }
+    h2 { font-size: 1.45rem; }
+    .scrim { align-items: flex-end; }
+    .sheet { width: 100%; height: auto; max-height: 88vh; border-radius: 22px 22px 0 0; }
+    .overlay { padding: 0; place-items: stretch; }
+    .panel { max-height: none; min-height: 100%; border-radius: 0; }
+    .d-hero { grid-template-columns: 1fr; padding: 54px 20px 6px; gap: 18px; justify-items: center; text-align: center; }
+    .d-cover { width: 150px; }
+    .d-info { padding-right: 0; }
+    .facts, .d-actions, .chips.center { justify-content: center; }
+    .d-sec { padding: 18px 20px; }
+    .row { flex-wrap: wrap; }
+    .popover { position: fixed; left: 12px; right: 12px; top: calc(var(--appbar-h) + 8px); width: auto; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 </head>
 <body>
-<main>
-  <header class="top">
-    <h1>Mes manhwas</h1>
-    <nav class="tabs" aria-label="Sections">
-      <button class="tab" data-tab="catalogue" aria-pressed="true">Catalogue</button>
-      <button class="tab" data-tab="follows" aria-pressed="false">Mes suivis</button>
-      <button class="tab" data-tab="news" aria-pressed="false">Nouveaux chapitres<span class="badge" id="badge" hidden>0</span></button>
-    </nav>
-    <div class="who">
-      <span id="who-email"></span>
-      <button class="btn ghost" id="btn-auth">Se connecter</button>
+
+<!-- Écran de connexion -->
+<div class="login" id="login" hidden>
+  <form class="login-card" id="login-form">
+    <div class="brand"><span class="logo" id="login-logo"></span><span>Manhwa</span></div>
+    <label class="l" for="email">Email</label>
+    <input id="email" type="email" autocomplete="email" required>
+    <label class="l" for="password" style="margin-top:12px">Mot de passe</label>
+    <input id="password" type="password" autocomplete="current-password" required>
+    <button class="btn" type="submit">Se connecter</button>
+    <p class="msg" id="login-msg" role="alert"></p>
+  </form>
+</div>
+
+<!-- Application -->
+<div id="app" hidden>
+  <header class="appbar">
+    <div class="brand"><span class="logo" id="brand-logo"></span><span>Manhwa</span></div>
+    <nav class="nav" id="nav-top" aria-label="Navigation principale"></nav>
+    <div class="actions">
+      <div class="bell-wrap">
+        <button class="icon-btn" id="btn-bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"></button>
+        <div class="popover" id="pop" hidden role="dialog" aria-label="Notifications">
+          <div class="pop-head"><b>Notifications</b><button class="btn secondary small" id="btn-readall">Tout marquer comme lu</button></div>
+          <div class="pop-list" id="pop-list"></div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <section id="auth-panel" class="panel" hidden>
-    <div class="msg" id="auth-intro" style="margin:0 0 10px"></div>
-    <div style="display:grid;gap:10px">
-      <div><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
-      <div><label for="password">Mot de passe (6 caractères minimum)</label><input id="password" type="password" autocomplete="current-password"></div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-      <button class="btn" id="btn-login">Se connecter</button>
-      <button class="btn ghost" id="btn-signup">Créer un compte</button>
-      <button class="btn ghost" id="btn-close-auth">Fermer</button>
-    </div>
-    <p class="msg" id="auth-msg"></p>
-  </section>
+  <main id="main">
+    <!-- Recherche -->
+    <section id="view-search" data-view="search">
+      <div class="view-head"><div><h2>Recherche</h2><div class="sub" id="search-sub"></div></div></div>
+      <div class="searchbar">
+        <div class="field"><span id="ic-search"></span><input id="q" type="search" placeholder="Rechercher un titre…" autocomplete="off" aria-label="Rechercher un titre"></div>
+        <button class="btn secondary" id="btn-filters" aria-haspopup="dialog"><span id="ic-filter"></span>Trier / filtrer<span class="count" id="filters-count" hidden>0</span></button>
+      </div>
+      <div class="chips" id="active"></div>
+      <div class="resultline"><span id="count"></span><span id="sort-label"></span></div>
+      <div class="grid" id="grid"></div>
+      <div id="sentinel"></div>
+      <button class="btn secondary more" id="more" hidden>Charger plus</button>
+    </section>
 
-  <p class="msg" id="msg"></p>
+    <!-- Suivis -->
+    <section id="view-follows" data-view="follows" hidden>
+      <div class="view-head"><div><h2>Suivis</h2><div class="sub" id="follows-sub"></div></div></div>
+      <div class="field" style="margin-bottom:18px"><span id="ic-search2"></span><input id="follows-q" type="search" placeholder="Filtrer mes suivis…" autocomplete="off" aria-label="Filtrer mes suivis"></div>
+      <div class="grid" id="grid-follows"></div>
+    </section>
 
-  <!-- Catalogue -->
-  <section id="view-catalogue">
-    <div class="toolbar">
-      <div><label for="q">Rechercher un titre</label><input id="q" type="search" placeholder="Solo Leveling…" autocomplete="off"></div>
-      <div><label for="site">Site</label><select id="site"><option value="">Tous les sites</option></select></div>
-    </div>
-    <div class="count" id="count"></div>
-    <div class="grid" id="grid"></div>
-    <button class="btn ghost more" id="more" hidden>Charger plus</button>
-  </section>
+    <!-- Historique -->
+    <section id="view-history" data-view="history" hidden>
+      <div class="view-head"><div><h2>Historique</h2><div class="sub">Les chapitres que tu as ouverts depuis ce site</div></div></div>
+      <div id="history-list"></div>
+      <button class="btn secondary more" id="history-more" hidden>Charger plus</button>
+    </section>
 
-  <!-- Mes suivis -->
-  <section id="view-follows" hidden>
-    <div class="grid" id="grid-follows"></div>
-  </section>
+    <!-- Paramètres -->
+    <section id="view-settings" data-view="settings" hidden>
+      <div class="view-head"><div><h2>Paramètres</h2></div></div>
+      <div class="settings" id="settings-body"></div>
+    </section>
+  </main>
 
-  <!-- Nouveaux chapitres -->
-  <section id="view-news" hidden>
-    <p class="notif-box" id="notif-box"></p>
-    <div id="news-list"></div>
-  </section>
-</main>
+  <nav class="tabbar" id="nav-bottom" aria-label="Navigation principale"></nav>
+</div>
+
+<!-- Panneau de filtres -->
+<div class="scrim" id="filters" hidden>
+  <aside class="sheet" role="dialog" aria-modal="true" aria-label="Trier et filtrer">
+    <div class="sheet-head"><h3>Trier et filtrer</h3><button class="icon-btn" id="filters-close" aria-label="Fermer"></button></div>
+    <div class="sheet-body" id="filters-body"></div>
+    <div class="sheet-foot"><button class="btn secondary" id="filters-reset">Réinitialiser</button><button class="btn" id="filters-apply">Afficher les résultats</button></div>
+  </aside>
+</div>
+
+<!-- Fiche d'une série -->
+<div class="overlay" id="detail" hidden>
+  <div class="panel" role="dialog" aria-modal="true" aria-labelledby="d-title" id="detail-panel"></div>
+</div>
+
+<div class="toast" id="toast" hidden role="status"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <script>
@@ -136,35 +330,136 @@
   // ============================================================
 
   const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  const PAGE = 24;
-  const SELECT_SOURCES = "site_id,url,cover_url,latest_chapter,latest_chapter_url";
 
+  /* ---------- Outils ---------- */
   const $ = (s, r = document) => r.querySelector(s);
+  const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch { return ""; } };
   const fmt = (n) => Number(n).toLocaleString("fr-FR", { maximumFractionDigits: 2 });
   const norm = (s) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
-  const when = (iso) => new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
-
   const store = {
     get(k) { try { return localStorage.getItem(k); } catch { return null; } },
     set(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } },
   };
+  function relTime(iso) {
+    const s = (Date.parse(iso) - Date.now()) / 1000, a = Math.abs(s);
+    const rtf = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
+    if (a < 60) return "à l’instant";
+    if (a < 3600) return rtf.format(Math.round(s / 60), "minute");
+    if (a < 86400) return rtf.format(Math.round(s / 3600), "hour");
+    if (a < 604800) return rtf.format(Math.round(s / 86400), "day");
+    return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" });
+  }
+  function dayLabel(iso) {
+    const d = new Date(iso), t = new Date();
+    const same = (a, b) => a.toDateString() === b.toDateString();
+    const y = new Date(t); y.setDate(t.getDate() - 1);
+    if (same(d, t)) return "Aujourd’hui";
+    if (same(d, y)) return "Hier";
+    return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
+  }
+  let toastTimer;
+  function toast(msg) {
+    const el = $("#toast"); el.textContent = msg; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  }
 
+  const I = (inner, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>`;
+  const ICON = {
+    search: I('<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'),
+    bookmark: I('<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>'),
+    bookmarkFill: I('<path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z"/>', "fill"),
+    history: I('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
+    settings: I('<path d="M4 6h8M16 6h4M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="14" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>'),
+    filter: I('<path d="M4 6h8M16 6h4M4 12h2M10 12h10M4 18h10M18 18h2"/><circle cx="14" cy="6" r="2"/><circle cx="8" cy="12" r="2"/><circle cx="16" cy="18" r="2"/>'),
+    bell: I('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/>'),
+    close: I('<path d="M6 6l12 12M18 6 6 18"/>'),
+    play: I('<path d="M8 5v14l11-7z"/>', "fill"),
+    logo: I('<rect x="4" y="3" width="7" height="18" rx="2"/><rect x="13" y="3" width="7" height="11" rx="2"/>'),
+  };
+  const NAV = [
+    { id: "search", label: "Recherche", icon: ICON.search },
+    { id: "follows", label: "Suivis", icon: ICON.bookmark },
+    { id: "history", label: "Historique", icon: ICON.history },
+    { id: "settings", label: "Paramètres", icon: ICON.settings },
+  ];
+  const TYPES = [["manhwa", "Manhwa"], ["manga", "Manga"], ["manhua", "Manhua"], ["webtoon", "Webtoon"], ["comic", "Comic"], ["doujinshi", "Doujinshi"]];
+  const STATUSES = [["ongoing", "En cours"], ["completed", "Terminé"], ["hiatus", "En pause"], ["dropped", "Abandonné"]];
+  const typeLabel = (t) => (TYPES.find((x) => x[0] === t) || [, t])[1];
+  const statusLabel = (t) => (STATUSES.find((x) => x[0] === t) || [, t])[1];
+  const SORTS = {
+    updated: { label: "Dernières mises à jour", col: "updated_at", asc: false },
+    title: { label: "Titre A → Z", col: "title", asc: true },
+    titledesc: { label: "Titre Z → A", col: "title", asc: false },
+    rating: { label: "Mieux notés", col: "rating", asc: false },
+    added: { label: "Récemment ajoutés", col: "created_at", asc: false },
+  };
+  // Pour chaque site : comment fabriquer le lien d'un chapitre si la liste complète n'est pas encore connue
+  const CHAPTER_TPL = {
+    asura: (url, n) => `${url}/chapter/${n}`,
+    mangaread: (url, n) => `${url}chapter-${String(n).replace(".", "-")}/`,
+  };
+
+  /* ---------- Réglages (gardés ici ET dans Supabase) ---------- */
+  const DEFAULTS = { theme: "auto", accent: "violet", cardSize: "normal", newTab: true, preferredSite: "", hiddenSites: [], defaultSort: "updated", browserNotif: false, notifSeenAt: 0 };
+  let settings = { ...DEFAULTS };
+  try { settings = { ...DEFAULTS, ...JSON.parse(store.get("ms_settings") || "{}") }; } catch { /* ignore */ }
+  const ACCENTS = { violet: ["#6c4bf5", "#9a82ff"], rose: ["#d92a73", "#ff6aa3"], teal: ["#0b8473", "#3fd3bd"], orange: ["#c2410c", "#ff9248"], blue: ["#2563eb", "#6ea0ff"] };
+  const ACCENT_NAMES = { violet: "Violet", rose: "Rose", teal: "Vert d’eau", orange: "Orange", blue: "Bleu" };
+  const dark = matchMedia("(prefers-color-scheme: dark)");
+
+  function applyAppearance() {
+    const mode = settings.theme === "auto" ? (dark.matches ? "dark" : "light") : settings.theme;
+    const root = document.documentElement;
+    root.dataset.theme = mode;
+    const [l, d] = ACCENTS[settings.accent] || ACCENTS.violet;
+    root.style.setProperty("--accent", mode === "dark" ? d : l);
+    root.style.setProperty("--on-accent", mode === "dark" ? "#140f20" : "#ffffff");
+    root.style.setProperty("--card-w", { compact: "122px", normal: "156px", grand: "200px" }[settings.cardSize] || "156px");
+    $('meta[name="theme-color"]').setAttribute("content", mode === "dark" ? "#110e18" : "#f4f2f9");
+  }
+  dark.addEventListener?.("change", () => { if (settings.theme === "auto") applyAppearance(); });
+
+  let syncTimer;
+  function saveSettings(patch) {
+    Object.assign(settings, patch);
+    store.set("ms_settings", JSON.stringify(settings));
+    applyAppearance();
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(syncSettings, 600);
+  }
+  async function syncSettings() {
+    if (!session) return;
+    await sb.from("user_settings").upsert({ user_id: session.user.id, data: settings, updated_at: new Date().toISOString() });
+  }
+  async function loadSettings() {
+    const { data } = await sb.from("user_settings").select("data").maybeSingle();
+    if (data?.data) settings = { ...DEFAULTS, ...data.data };
+    if (!settings.notifSeenAt) settings.notifSeenAt = Date.now(); // pas d'avalanche de vieilles notifications au 1er lancement
+    store.set("ms_settings", JSON.stringify(settings));
+    applyAppearance();
+  }
+  applyAppearance();
+
+  /* ---------- État ---------- */
   let session = null;
-  const sites = new Map();
-  const follows = new Set();
-  const state = { tab: "catalogue", q: "", site: "", offset: 0, total: 0, token: 0 };
+  const sites = new Map();                 // id -> nom
+  const follows = new Set();               // ids des séries suivies
+  let genresList = [];
+  let stats = null;
+  const state = { tab: "search", q: "", filters: { sites: [], types: [], statuses: [], genres: [], genreMode: "all", sort: null }, offset: 0, total: 0, token: 0, loading: false, searched: false };
+  const PAGE = 24;
+  let newsCache = [];
+  let unreadSeries = new Set();
   let lastNotified = Date.now();
-
-  const say = (text, ok = false) => { const el = $("#msg"); el.textContent = text; el.classList.toggle("ok", ok); };
   const siteName = (id) => sites.get(id) || id;
+  const currentSort = () => state.filters.sort || (SORTS[settings.defaultSort] ? settings.defaultSort : "updated");
 
-  // ---------- Affichage des séries ----------
+  /* ---------- Cartes ---------- */
   function coverOf(s) {
     return safeUrl(s.cover_url) || safeUrl((s.series_sources || []).find((x) => x.cover_url)?.cover_url);
   }
-
   function coverHtml(s) {
     const c = coverOf(s);
     const letter = esc((s.title || "?").trim().charAt(0).toUpperCase());
@@ -172,8 +467,6 @@
       ? `<img class="cover" src="${esc(c)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-letter="${letter}">`
       : `<div class="cover empty" aria-hidden="true">${letter}</div>`;
   }
-
-  // Si une image ne charge pas, on met la première lettre à la place
   document.addEventListener("error", (e) => {
     const img = e.target;
     if (img.tagName === "IMG" && img.classList.contains("cover")) {
@@ -184,220 +477,589 @@
   }, true);
 
   function cardHtml(s) {
-    const srcs = (s.series_sources || []).slice().sort((a, b) => (b.latest_chapter ?? -1) - (a.latest_chapter ?? -1));
-    const top = srcs[0]?.latest_chapter;
-    const on = follows.has(s.id);
-    const rows = srcs.map((x) => {
-      const page = safeUrl(x.url);
-      const last = safeUrl(x.latest_chapter_url) || page;
-      const best = srcs.length > 1 && x.latest_chapter != null && x.latest_chapter === top;
-      return `<div class="src ${best ? "best" : ""}">
-        <a class="site" href="${esc(page)}" target="_blank" rel="noopener noreferrer" title="Ouvrir la page de la série sur ${esc(siteName(x.site_id))}">${esc(siteName(x.site_id))}</a>
-        ${x.latest_chapter != null ? `<a class="ch" href="${esc(last)}" target="_blank" rel="noopener noreferrer" title="Ouvrir le dernier chapitre">ch. ${fmt(x.latest_chapter)} ›</a>` : ""}
-      </div>`;
-    }).join("");
-    return `<article class="card" data-id="${esc(s.id)}">
-      ${coverHtml(s)}
-      <h3 class="t" title="${esc(s.title)}">${esc(s.title)}</h3>
-      <div class="srcs">${rows}</div>
-      <button class="follow" data-act="follow" aria-pressed="${on}">${on ? "Suivi ✓" : "Suivre"}</button>
-    </article>`;
+    const srcs = s.series_sources || [];
+    const best = srcs.reduce((m, x) => Math.max(m, x.latest_chapter ?? -1), -1);
+    const names = [...new Set(srcs.map((x) => siteName(x.site_id)))].join(" · ");
+    const tag = unreadSeries.has(s.id) ? `<span class="tag new">Nouveau</span>` : s.type ? `<span class="tag">${esc(typeLabel(s.type))}</span>` : "";
+    return `<a class="card" href="#serie-${esc(s.id)}" data-id="${esc(s.id)}">
+      <div class="cover-wrap">${coverHtml(s)}${tag}
+        ${follows.has(s.id) ? `<span class="mark" title="Suivi">${ICON.bookmarkFill}</span>` : ""}
+        ${best >= 0 ? `<span class="chap">Ch. ${fmt(best)}</span>` : ""}
+      </div>
+      <h3 class="title">${esc(s.title)}</h3>
+      <p class="meta">${esc(names)}</p>
+    </a>`;
+  }
+  function refreshMarks() {
+    $$(".card[data-id]").forEach((card) => {
+      const wrap = $(".cover-wrap", card), has = $(".mark", wrap), on = follows.has(card.dataset.id);
+      if (on && !has) wrap.insertAdjacentHTML("beforeend", `<span class="mark" title="Suivi">${ICON.bookmarkFill}</span>`);
+      if (!on && has) has.remove();
+    });
   }
 
-  // ---------- Catalogue ----------
-  async function loadCatalogue(reset) {
+  /* ---------- Navigation ---------- */
+  function buildNav() {
+    const top = NAV.map((n) => `<button data-tab="${n.id}">${n.icon}<span>${n.label}</span></button>`).join("");
+    const bottom = NAV.map((n) => `<button data-tab="${n.id}">${n.icon}<span>${n.label}</span></button>`).join("");
+    $("#nav-top").innerHTML = top; $("#nav-bottom").innerHTML = bottom;
+    ["#brand-logo", "#login-logo"].forEach((s) => { $(s).innerHTML = ICON.logo; });
+    $("#btn-bell").innerHTML = ICON.bell + `<span class="dot" id="bell-badge" hidden>0</span>`;
+    $("#ic-search").innerHTML = ICON.search; $("#ic-search2").innerHTML = ICON.search; $("#ic-filter").innerHTML = ICON.filter;
+    $("#filters-close").innerHTML = ICON.close;
+  }
+  [["#nav-top"], ["#nav-bottom"]].forEach(([sel]) => document.addEventListener("click", (e) => {
+    const b = e.target.closest(`${sel} [data-tab]`);
+    if (b) { if (/^#serie-/.test(location.hash)) hideDetail(); showTab(b.dataset.tab); }
+  }));
+
+  function showTab(t) {
+    state.tab = t;
+    store.set("ms_tab", t);
+    $$("[data-tab]").forEach((b) => (b.dataset.tab === t ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current")));
+    $$("[data-view]").forEach((v) => { v.hidden = v.dataset.view !== t; });
+    closePop();
+    if (t === "search" && !state.searched) loadSearch(true);
+    if (t === "follows") loadFollows();
+    if (t === "history") loadHistory(true);
+    if (t === "settings") renderSettings();
+    window.scrollTo(0, 0);
+  }
+
+  /* ---------- Recherche ---------- */
+  const SERIES_COLS = "id,title,cover_url,type,status,rating,updated_at";
+  const SRC_LIGHT = "site_id,url,cover_url,latest_chapter,latest_chapter_url";
+
+  function visibleSiteIds() {
+    const f = state.filters;
+    if (f.sites.length) return f.sites;
+    return settings.hiddenSites.length ? [...sites.keys()].filter((id) => !settings.hiddenSites.includes(id)) : [];
+  }
+
+  function buildQuery(from, to) {
+    const f = state.filters, ids = visibleSiteIds(), inner = ids.length > 0;
+    let q = sb.from("series").select(`${SERIES_COLS},series_sources${inner ? "!inner" : ""}(${SRC_LIGHT})`, { count: "exact" });
+    if (inner) q = q.in("series_sources.site_id", ids);
+    if (state.q) { const n = norm(state.q); q = n ? q.ilike("norm_title", `%${n}%`) : q.ilike("title", `%${state.q}%`); }
+    if (f.types.length) q = q.in("type", f.types);
+    if (f.statuses.length) q = q.in("status", f.statuses);
+    if (f.genres.length) q = f.genreMode === "all" ? q.contains("genres", f.genres) : q.overlaps("genres", f.genres);
+    const s = SORTS[currentSort()];
+    q = q.order(s.col, s.col === "rating" ? { ascending: false, nullsFirst: false } : { ascending: s.asc });
+    if (s.col !== "title") q = q.order("title");
+    return q.order("id").range(from, to);
+  }
+
+  async function loadSearch(reset) {
     const my = ++state.token;
     if (reset) { state.offset = 0; $("#grid").innerHTML = ""; $("#more").hidden = true; }
-    const from = state.offset, to = from + PAGE - 1;
-    const embed = `series_sources${state.site ? "!inner" : ""}(${SELECT_SOURCES})`;
-    let q = sb.from("series").select(`id,title,cover_url,${embed}`, { count: "exact" });
-    if (state.q) {
-      const n = norm(state.q);
-      q = n ? q.ilike("norm_title", `%${n}%`) : q.ilike("title", `%${state.q}%`);
-    }
-    if (state.site) q = q.eq("series_sources.site_id", state.site);
-    const { data, error, count } = await q.order("title").range(from, to);
-    if (my !== state.token) return; // une recherche plus récente a pris le relais
-    if (error) { say("Chargement impossible : " + error.message); return; }
-    say("");
+    state.loading = true; state.searched = true;
+    const { data, error, count } = await buildQuery(state.offset, state.offset + PAGE - 1);
+    if (my !== state.token) return;
+    state.loading = false;
+    if (error) { $("#grid").innerHTML = `<p class="empty-state">Chargement impossible : ${esc(error.message)}</p>`; return; }
     $("#grid").insertAdjacentHTML("beforeend", data.map(cardHtml).join(""));
     state.offset += data.length;
     state.total = count ?? state.total;
-    $("#count").textContent = state.total.toLocaleString("fr-FR") + " série" + (state.total > 1 ? "s" : "");
+    $("#count").textContent = `${state.total.toLocaleString("fr-FR")} résultat${state.total > 1 ? "s" : ""}`;
+    $("#sort-label").textContent = SORTS[currentSort()].label;
     $("#more").hidden = state.offset >= state.total;
-    $("#more").disabled = false;
-    if (!state.total) $("#grid").innerHTML = `<p class="empty-state">Aucune série trouvée.</p>`;
+    if (!state.total) $("#grid").innerHTML = `<p class="empty-state">Aucune série ne correspond à ta recherche.</p>`;
+    renderActive();
   }
 
   let debounce;
   $("#q").addEventListener("input", (e) => {
     clearTimeout(debounce);
-    debounce = setTimeout(() => { state.q = e.target.value.trim(); loadCatalogue(true); }, 300);
+    debounce = setTimeout(() => { state.q = e.target.value.trim(); loadSearch(true); }, 300);
   });
-  $("#site").addEventListener("change", (e) => { state.site = e.target.value; loadCatalogue(true); });
-  $("#more").addEventListener("click", (e) => { e.target.disabled = true; loadCatalogue(false); });
-
-  // ---------- Suivis ----------
-  const SERIES_EMBED = `id,title,cover_url,series_sources(${SELECT_SOURCES})`;
-
-  async function loadFollows() {
-    const box = $("#grid-follows");
-    if (!session) { box.innerHTML = `<p class="empty-state">Connecte-toi pour retrouver ta liste de suivi.</p>`; return; }
-    const { data, error } = await sb.from("follows").select(`created_at,series(${SERIES_EMBED})`).order("created_at", { ascending: false });
-    if (error) { say("Chargement impossible : " + error.message); return; }
-    say("");
-    const list = data.map((r) => r.series).filter(Boolean);
-    box.innerHTML = list.length ? list.map(cardHtml).join("") : `<p class="empty-state">Tu ne suis encore aucune série. Va dans le catalogue et clique sur « Suivre ».</p>`;
+  $("#more").addEventListener("click", () => { if (!state.loading) loadSearch(false); });
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && state.searched && !state.loading && state.offset < state.total && state.tab === "search") loadSearch(false);
+    }, { rootMargin: "500px" }).observe($("#sentinel"));
   }
 
+  function activeFilterCount() {
+    const f = state.filters;
+    return f.sites.length + f.types.length + f.statuses.length + f.genres.length + (f.sort && f.sort !== settings.defaultSort ? 1 : 0);
+  }
+  function renderActive() {
+    const f = state.filters, chips = [];
+    f.sites.forEach((id) => chips.push(["sites", id, siteName(id)]));
+    f.types.forEach((t) => chips.push(["types", t, typeLabel(t)]));
+    f.statuses.forEach((t) => chips.push(["statuses", t, statusLabel(t)]));
+    f.genres.forEach((g) => chips.push(["genres", g, g]));
+    $("#active").innerHTML = chips.map(([k, v, label]) => `<button class="chip removable" data-rm="${k}" data-v="${esc(v)}" aria-label="Retirer ${esc(label)}">${esc(label)}</button>`).join("");
+    const n = activeFilterCount();
+    $("#filters-count").textContent = n; $("#filters-count").hidden = !n;
+  }
+  $("#active").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-rm]"); if (!b) return;
+    const arr = state.filters[b.dataset.rm]; arr.splice(arr.indexOf(b.dataset.v), 1);
+    loadSearch(true);
+  });
+
+  /* ---------- Panneau de filtres ---------- */
+  let draft = null, lastFocus = null;
+  const cloneFilters = (f) => JSON.parse(JSON.stringify(f));
+  function openFilters() {
+    draft = cloneFilters(state.filters); draft.sort = draft.sort || currentSort();
+    lastFocus = document.activeElement;
+    renderFilters(); $("#filters").hidden = false; lockScroll(); $("#filters-close").focus();
+  }
+  function closeFilters() { $("#filters").hidden = true; lockScroll(); lastFocus?.focus?.(); }
+  const toggleIn = (arr, v) => { const i = arr.indexOf(v); i < 0 ? arr.push(v) : arr.splice(i, 1); };
+
+  function renderFilters(genreQuery = "") {
+    const chip = (group, value, label) => `<button class="chip" data-g="${group}" data-v="${esc(value)}" aria-pressed="${draft[group].includes(value)}">${esc(label)}</button>`;
+    const genres = genresList.filter((g) => !genreQuery || g.toLowerCase().includes(genreQuery.toLowerCase()));
+    const pct = stats && stats.total ? Math.round((stats.detailed / stats.total) * 100) : null;
+    const html = `
+      <div class="fsec"><h4>Trier par</h4><div class="seg" role="group">
+        ${Object.entries(SORTS).map(([k, s]) => `<button data-sort="${k}" aria-pressed="${draft.sort === k}">${esc(s.label)}</button>`).join("")}</div></div>
+      <div class="fsec"><h4>Sites</h4><div class="chips">${[...sites].map(([id, name]) => chip("sites", id, name)).join("")}</div></div>
+      <div class="fsec"><h4>Nature de l’œuvre</h4><div class="chips">${TYPES.map(([k, l]) => chip("types", k, l)).join("")}</div></div>
+      <div class="fsec"><h4>Statut</h4><div class="chips">${STATUSES.map(([k, l]) => chip("statuses", k, l)).join("")}</div></div>
+      <div class="fsec"><h4>Genres</h4>
+        ${genresList.length ? `
+          <div class="seg" role="group"><button data-mode="all" aria-pressed="${draft.genreMode === "all"}">Tous les genres choisis</button><button data-mode="any" aria-pressed="${draft.genreMode === "any"}">Au moins un</button></div>
+          <input type="search" id="genre-q" placeholder="Chercher un genre…" value="${esc(genreQuery)}" style="margin-top:12px" aria-label="Chercher un genre">
+          <div class="genre-cloud chips">${genres.map((g) => chip("genres", g, g)).join("") || `<span class="hint">Aucun genre ne correspond.</span>`}</div>`
+        : `<p class="hint">Les genres apparaîtront ici dès que le robot aura analysé les premières séries.</p>`}
+        ${pct !== null && pct < 100 ? `<p class="hint">Types, genres et statuts : ${stats.detailed.toLocaleString("fr-FR")} séries analysées sur ${stats.total.toLocaleString("fr-FR")} (${pct} %). Le reste se complète tout seul à chaque passage du robot.</p>` : ""}
+      </div>`;
+    const keep = $("#genre-q") === document.activeElement;
+    $("#filters-body").innerHTML = html;
+    if (keep) { const el = $("#genre-q"); el.focus(); el.setSelectionRange(genreQuery.length, genreQuery.length); }
+  }
+  $("#filters-body").addEventListener("click", (e) => {
+    const chip = e.target.closest("[data-g]"), sort = e.target.closest("[data-sort]"), mode = e.target.closest("[data-mode]");
+    if (chip) { toggleIn(draft[chip.dataset.g], chip.dataset.v); chip.setAttribute("aria-pressed", draft[chip.dataset.g].includes(chip.dataset.v)); }
+    if (sort) { draft.sort = sort.dataset.sort; $$("[data-sort]").forEach((b) => b.setAttribute("aria-pressed", b === sort)); }
+    if (mode) { draft.genreMode = mode.dataset.mode; $$("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", b === mode)); }
+  });
+  $("#filters-body").addEventListener("input", (e) => { if (e.target.id === "genre-q") renderFilters(e.target.value); });
+  $("#btn-filters").addEventListener("click", openFilters);
+  $("#filters-close").addEventListener("click", closeFilters);
+  $("#filters").addEventListener("click", (e) => { if (e.target.id === "filters") closeFilters(); });
+  $("#filters-reset").addEventListener("click", () => { draft = { sites: [], types: [], statuses: [], genres: [], genreMode: "all", sort: settings.defaultSort }; renderFilters(); });
+  $("#filters-apply").addEventListener("click", () => {
+    state.filters = { ...draft, sort: draft.sort === settings.defaultSort ? null : draft.sort };
+    closeFilters(); loadSearch(true);
+  });
+
+  /* ---------- Suivis ---------- */
+  const SERIES_EMBED = `${SERIES_COLS},series_sources(${SRC_LIGHT})`;
+  let followsData = [];
+  async function loadFollows() {
+    const box = $("#grid-follows");
+    const { data, error } = await sb.from("follows").select(`created_at,series(${SERIES_EMBED})`).order("created_at", { ascending: false });
+    if (error) { box.innerHTML = `<p class="empty-state">Chargement impossible : ${esc(error.message)}</p>`; return; }
+    followsData = data.map((r) => r.series).filter(Boolean);
+    renderFollows();
+  }
+  function renderFollows() {
+    const q = norm($("#follows-q").value || "");
+    const list = followsData.filter((s) => !q || norm(s.title).includes(q));
+    $("#follows-sub").textContent = `${followsData.length} œuvre${followsData.length > 1 ? "s" : ""} suivie${followsData.length > 1 ? "s" : ""}`;
+    $("#grid-follows").innerHTML = list.length
+      ? list.map(cardHtml).join("")
+      : `<p class="empty-state">${followsData.length ? "Aucun suivi ne correspond." : "Tu ne suis encore aucune œuvre. Ouvre la fiche d’une série depuis la recherche pour la suivre."}</p>`;
+  }
+  $("#follows-q").addEventListener("input", renderFollows);
+
   async function toggleFollow(id) {
-    if (!session) { openAuth("Connecte-toi pour suivre des séries."); return; }
     const on = !follows.has(id);
-    setFollowUi(id, on);
+    on ? follows.add(id) : follows.delete(id);
+    updateFollowBtn(); refreshMarks();
     const { error } = on ? await sb.from("follows").insert({ series_id: id }) : await sb.from("follows").delete().eq("series_id", id);
-    if (error && error.code !== "23505") { setFollowUi(id, !on); say("Action impossible : " + error.message); return; }
-    if (state.tab === "follows" && !on) document.querySelector(`#grid-follows .card[data-id="${CSS.escape(id)}"]`)?.remove();
+    if (error && error.code !== "23505") {
+      on ? follows.delete(id) : follows.add(id); updateFollowBtn(); refreshMarks();
+      toast("Action impossible : " + error.message); return;
+    }
+    toast(on ? "Ajoutée à tes suivis" : "Retirée de tes suivis");
+    if (state.tab === "follows") loadFollows();
     refreshNews();
   }
 
-  function setFollowUi(id, on) {
-    on ? follows.add(id) : follows.delete(id);
-    document.querySelectorAll(`.card[data-id="${CSS.escape(id)}"] .follow`).forEach((b) => {
-      b.setAttribute("aria-pressed", on); b.textContent = on ? "Suivi ✓" : "Suivre";
+  /* ---------- Fiche d'une série ---------- */
+  let cur = null;      // { s, siteId, read:Set, order:'desc'|'asc', fromHash }
+  const DETAIL_COLS = `${SERIES_COLS},genres,description,series_sources(id,site_id,url,cover_url,latest_chapter,latest_chapter_url,chapter_count,chapters)`;
+  let hadDetailAtLoad = /^#serie-/.test(location.hash);
+
+  function chaptersOf(src) {
+    if (Array.isArray(src.chapters) && src.chapters.length) {
+      return { approx: false, list: src.chapters.map(([n, suf]) => ({ n: Number(n), url: /^https?:/.test(suf) ? suf : src.url + suf })).sort((a, b) => a.n - b.n) };
+    }
+    const tpl = CHAPTER_TPL[src.site_id], last = src.latest_chapter;
+    if (!tpl || last == null) return { approx: true, list: [] };
+    const list = [];
+    for (let i = 1; i <= Math.floor(last); i++) list.push({ n: i, url: tpl(src.url, i) });
+    if (last % 1) list.push({ n: last, url: tpl(src.url, last) });
+    return { approx: true, list };
+  }
+  function pickSource(s) {
+    const srcs = s.series_sources || [];
+    return srcs.find((x) => x.site_id === settings.preferredSite) || srcs.slice().sort((a, b) => (b.latest_chapter ?? -1) - (a.latest_chapter ?? -1))[0];
+  }
+  const linkAttrs = () => (settings.newTab ? `target="_blank" rel="noopener noreferrer"` : `rel="noopener"`);
+
+  function renderDetail() {
+    const { s } = cur;
+    const srcs = (s.series_sources || []).slice().sort((a, b) => (b.latest_chapter ?? -1) - (a.latest_chapter ?? -1));
+    const src = srcs.find((x) => x.site_id === cur.siteId) || srcs[0];
+    const { list, approx } = src ? chaptersOf(src) : { list: [], approx: true };
+    const top = srcs[0]?.latest_chapter;
+    const lastRead = cur.read.size ? Math.max(...cur.read) : null;
+    const first = list[0], last = list[list.length - 1];
+    const next = lastRead != null ? list.find((c) => c.n > lastRead) : null;
+    const aBtn = (c, cls, label) => c
+      ? `<a class="btn ${cls}" href="${esc(safeUrl(c.url))}" ${linkAttrs()} data-read="${c.n}">${ICON.play}${label}</a>`
+      : `<span class="btn ${cls}" aria-disabled="true">${label}</span>`;
+    const facts = [s.type && typeLabel(s.type), s.status && statusLabel(s.status), s.rating != null && `★ ${fmt(s.rating)}/10`, list.length && !approx && `${list.length} chapitres`].filter(Boolean);
+    const on = follows.has(s.id);
+    const desc = s.description || "";
+
+    const continueBtn = lastRead == null ? "" : next
+      ? aBtn(next, "", `Continuer · ch. ${fmt(next.n)}`)
+      : aBtn(list.find((c) => c.n === lastRead), "secondary", `À jour · ch. ${fmt(lastRead)}`);
+
+    $("#detail-panel").innerHTML = `
+      <button class="icon-btn d-close" id="d-close" aria-label="Fermer">${ICON.close}</button>
+      <div class="d-hero">
+        <div class="d-cover">${coverHtml(s)}</div>
+        <div class="d-info">
+          <h2 id="d-title">${esc(s.title)}</h2>
+          <div class="facts">${facts.map((f) => `<span class="fact">${esc(f)}</span>`).join("")}</div>
+          ${(s.genres || []).length ? `<div class="chips">${s.genres.map((g) => `<button class="chip" data-genre="${esc(g)}">${esc(g)}</button>`).join("")}</div>` : ""}
+          <div class="d-actions">
+            ${continueBtn || aBtn(first, "", "Commencer à lire")}
+            ${continueBtn ? aBtn(first, "secondary", "Depuis le début") : ""}
+            ${aBtn(last, "secondary", last ? `Dernier chapitre · ${fmt(last.n)}` : "Dernier chapitre")}
+            <button class="btn secondary follow-btn" id="d-follow" aria-pressed="${on}">${on ? ICON.bookmarkFill : ICON.bookmark}<span>${on ? "Suivi" : "Suivre"}</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="d-sec"><h3>Lire sur</h3>
+        <div class="src-seg">${srcs.map((x) => `<button class="src-btn" data-site="${esc(x.site_id)}" aria-pressed="${x.site_id === src?.site_id}"><b>${esc(siteName(x.site_id))}</b><small>${x.latest_chapter != null ? `ch. ${fmt(x.latest_chapter)}` : "—"}${srcs.length > 1 && x.latest_chapter != null && x.latest_chapter === top ? ` · <span class="best">à jour</span>` : ""}</small></button>`).join("")}</div>
+      </div>
+      <div class="d-sec"><h3>Résumé</h3>
+        ${desc ? `<p class="desc clamp" id="d-desc">${esc(desc)}</p>${desc.length > 280 ? `<button class="link" id="d-more">Voir plus</button>` : ""}`
+               : `<p class="note">Le résumé de cette série sera récupéré automatiquement au prochain passage du robot.</p>`}
+      </div>
+      <div class="d-sec">
+        <div class="ch-head"><h3>Chapitres${list.length ? ` <small style="color:var(--muted);font-weight:500">(${list.length})</small>` : ""}</h3>
+          <div class="ch-tools">
+            <input type="number" step="any" min="0" id="ch-jump" placeholder="Aller au chapitre…" aria-label="Aller au chapitre">
+            <button class="btn small" id="ch-go">Lire</button>
+            <button class="btn secondary small" id="ch-sort">${cur.order === "desc" ? "Récents ↓" : "Anciens ↑"}</button>
+          </div>
+        </div>
+        ${list.length ? `<div class="ch-grid" id="ch-grid">${(cur.order === "desc" ? list.slice().reverse() : list).map((c) =>
+            `<a class="ch ${cur.read.has(c.n) ? "read" : ""} ${c.n === lastRead ? "last" : ""}" href="${esc(safeUrl(c.url))}" ${linkAttrs()} data-read="${c.n}" data-n="${c.n}">${fmt(c.n)}</a>`).join("")}</div>`
+          : `<p class="note">Aucune liste de chapitres pour ce site pour l’instant.</p>`}
+        ${approx && list.length ? `<p class="note">Liste reconstituée à partir du dernier chapitre : la liste exacte sera récupérée au prochain passage du robot.</p>` : ""}
+      </div>`;
+    cur.list = list; cur.src = src;
+    $("#d-close").addEventListener("click", closeDetail);
+  }
+
+  function updateFollowBtn() {
+    const b = $("#d-follow"); if (!b || !cur) return;
+    const on = follows.has(cur.s.id);
+    b.setAttribute("aria-pressed", on); b.innerHTML = (on ? ICON.bookmarkFill : ICON.bookmark) + `<span>${on ? "Suivi" : "Suivre"}</span>`;
+  }
+
+  async function markRead(n) {
+    if (!session || !cur || cur.read.has(n)) return;
+    cur.read.add(n);
+    const chip = $(`.ch[data-n="${CSS.escape(String(n))}"]`); chip?.classList.add("read");
+    const c = cur.list.find((x) => x.n === n);
+    await sb.from("reading_history").upsert({
+      user_id: session.user.id, series_id: cur.s.id, chapter: n, site_id: cur.src?.site_id, chapter_url: c?.url, read_at: new Date().toISOString(),
     });
   }
 
-  document.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-act='follow']");
-    if (btn) toggleFollow(btn.closest(".card").dataset.id);
+  async function openDetail(id) {
+    lastFocus = lastFocus || document.activeElement;
+    $("#detail").hidden = false; lockScroll();
+    $("#detail-panel").innerHTML = `<p class="empty-state" style="padding:80px 0">Chargement…</p>`;
+    const [a, b] = await Promise.all([
+      sb.from("series").select(DETAIL_COLS).eq("id", id).maybeSingle(),
+      sb.from("reading_history").select("chapter").eq("series_id", id),
+    ]);
+    if (a.error || !a.data) { $("#detail-panel").innerHTML = `<p class="empty-state" style="padding:80px 0">Série introuvable.</p>`; return; }
+    cur = { s: a.data, siteId: pickSource(a.data)?.site_id, read: new Set((b.data || []).map((r) => Number(r.chapter))), order: "desc" };
+    renderDetail();
+    $("#d-close").focus();
+    $("#detail-panel").scrollTop = 0;
+  }
+  function hideDetail() {
+    if ($("#detail").hidden) return;
+    $("#detail").hidden = true; cur = null; lockScroll();
+    lastFocus?.focus?.(); lastFocus = null;
+  }
+  function closeDetail() {
+    if (!/^#serie-/.test(location.hash)) { hideDetail(); return; }
+    if (hadDetailAtLoad) { hadDetailAtLoad = false; history.replaceState(null, "", location.pathname + location.search); hideDetail(); }
+    else history.back();
+  }
+  function route() {
+    const m = location.hash.match(/^#serie-([0-9a-f-]{36})$/i);
+    if (m && session) openDetail(m[1]); else hideDetail();
+  }
+  window.addEventListener("hashchange", route);
+
+  $("#detail").addEventListener("click", (e) => {
+    if (e.target.id === "detail") { closeDetail(); return; }
+    const read = e.target.closest("[data-read]");
+    if (read) { markRead(Number(read.dataset.read)); return; }
+    if (e.target.closest("#d-follow")) { toggleFollow(cur.s.id); return; }
+    const site = e.target.closest("[data-site]");
+    if (site) { cur.siteId = site.dataset.site; renderDetail(); return; }
+    const genre = e.target.closest("[data-genre]");
+    if (genre) {
+      state.filters.genres = [genre.dataset.genre]; state.filters.genreMode = "all";
+      closeDetail(); showTab("search"); loadSearch(true); return;
+    }
+    if (e.target.id === "d-more") { const d = $("#d-desc"); const open = d.classList.toggle("clamp"); e.target.textContent = open ? "Voir plus" : "Voir moins"; return; }
+    if (e.target.id === "ch-sort") { cur.order = cur.order === "desc" ? "asc" : "desc"; renderDetail(); return; }
+    if (e.target.id === "ch-go") jumpToChapter();
   });
+  $("#detail").addEventListener("auxclick", (e) => { const r = e.target.closest("[data-read]"); if (r && e.button === 1) markRead(Number(r.dataset.read)); });
+  $("#detail").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "ch-jump") jumpToChapter(); });
 
-  // ---------- Nouveaux chapitres ----------
-  const lastSeen = () => { const v = Number(store.get("ms_last_seen")); if (v) return v; store.set("ms_last_seen", String(Date.now())); return Date.now(); };
+  function jumpToChapter() {
+    const v = parseFloat($("#ch-jump").value);
+    const c = Number.isFinite(v) && cur.list.find((x) => x.n === v);
+    if (!c) { toast("Ce chapitre n’existe pas sur ce site."); return; }
+    window.open(c.url, settings.newTab ? "_blank" : "_self", "noopener");
+    markRead(c.n);
+    $(`.ch[data-n="${CSS.escape(String(c.n))}"]`)?.scrollIntoView?.({ block: "center" });
+  }
 
+  /* ---------- Historique ---------- */
+  const H_PAGE = 40;
+  let hOffset = 0, hLastDay = "";
+  async function loadHistory(reset) {
+    const box = $("#history-list");
+    if (reset) { hOffset = 0; hLastDay = ""; box.innerHTML = ""; }
+    const { data, error } = await sb.from("reading_history")
+      .select("series_id,chapter,site_id,chapter_url,read_at,series(id,title,cover_url)")
+      .order("read_at", { ascending: false }).range(hOffset, hOffset + H_PAGE - 1);
+    if (error) { box.innerHTML = `<p class="empty-state">Chargement impossible : ${esc(error.message)}</p>`; return; }
+    let html = "";
+    for (const r of data) {
+      const day = dayLabel(r.read_at);
+      if (day !== hLastDay) { html += `<div class="day">${esc(day)}</div>`; hLastDay = day; }
+      const s = r.series || { id: r.series_id, title: "Série supprimée" };
+      html += `<a class="hrow" href="#serie-${esc(s.id)}">
+        <div class="cover-wrap">${coverHtml(s)}</div>
+        <div><div class="h-title">${esc(s.title)}</div><div class="h-sub">Chapitre ${fmt(r.chapter)}${r.site_id ? " · " + esc(siteName(r.site_id)) : ""}</div></div>
+        <time datetime="${esc(r.read_at)}">${esc(new Date(r.read_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }))}</time></a>`;
+    }
+    box.insertAdjacentHTML("beforeend", html);
+    hOffset += data.length;
+    $("#history-more").hidden = data.length < H_PAGE;
+    if (!hOffset) box.innerHTML = `<p class="empty-state">Rien pour l’instant. Les chapitres que tu ouvres depuis une fiche s’affichent ici.</p>`;
+  }
+  $("#history-more").addEventListener("click", () => loadHistory(false));
+
+  /* ---------- Notifications (cloche) ---------- */
   async function fetchEvents() {
     if (!session || !follows.size) return [];
     const { data, error } = await sb.from("chapter_events")
       .select("id,chapter,chapter_url,created_at,site_id,series(id,title,cover_url)")
-      .in("series_id", [...follows]).order("created_at", { ascending: false }).limit(100);
+      .in("series_id", [...follows]).order("created_at", { ascending: false }).limit(60);
     return error ? [] : data;
   }
+  const isUnread = (ev) => Date.parse(ev.created_at) > settings.notifSeenAt;
+  // "Tout est lu" = maintenant, ou la date du dernier évènement si l'horloge de l'appareil retarde
+  const seenNow = () => Math.max(Date.now(), ...newsCache.map((e) => Date.parse(e.created_at) || 0));
 
-  function setBadge(n) {
-    $("#badge").hidden = !n; $("#badge").textContent = n;
-    document.title = (n ? `(${n}) ` : "") + "Mes manhwas";
+  function updateBadge() {
+    const n = newsCache.filter(isUnread).length;
+    const b = $("#bell-badge"); if (!b) return;
+    b.hidden = !n; b.textContent = n > 9 ? "9+" : n;
+    document.title = (n ? `(${n}) ` : "") + "Manhwa";
+    unreadSeries = new Set(newsCache.filter(isUnread).map((e) => e.series?.id).filter(Boolean));
   }
-
   async function refreshNews() {
-    if (!session) { setBadge(0); return []; }
-    const events = await fetchEvents();
-    const since = lastSeen();
-    const unread = events.filter((ev) => Date.parse(ev.created_at) > since);
-    setBadge(state.tab === "news" ? 0 : unread.length);
-    if ("Notification" in window && Notification.permission === "granted") {
-      const fresh = unread.filter((ev) => Date.parse(ev.created_at) > lastNotified);
-      fresh.slice(0, 3).forEach((ev) => new Notification("Nouveau chapitre", {
-        body: `${ev.series?.title ?? "Une série"} : chapitre ${fmt(ev.chapter)} sur ${siteName(ev.site_id)}`,
-      }));
+    if (!session) return;
+    newsCache = await fetchEvents();
+    updateBadge();
+    if (!$("#pop").hidden) renderPop();
+    if (settings.browserNotif && "Notification" in window && Notification.permission === "granted") {
+      const fresh = newsCache.filter((ev) => isUnread(ev) && Date.parse(ev.created_at) > lastNotified);
+      fresh.slice(0, 3).forEach((ev) => new Notification("Nouveau chapitre", { body: `${ev.series?.title ?? "Une série"} : chapitre ${fmt(ev.chapter)} sur ${siteName(ev.site_id)}` }));
       if (fresh.length) lastNotified = Math.max(...fresh.map((ev) => Date.parse(ev.created_at)));
     }
-    return events;
   }
-
-  async function loadNews() {
-    const list = $("#news-list");
-    renderNotifBox();
-    if (!session) { list.innerHTML = `<p class="empty-state">Connecte-toi pour voir les nouveaux chapitres de tes séries.</p>`; return; }
-    if (!follows.size) { list.innerHTML = `<p class="empty-state">Suis quelques séries dans le catalogue : leurs nouveaux chapitres apparaîtront ici.</p>`; return; }
-    const since = lastSeen();
-    const events = await fetchEvents();
-    list.innerHTML = events.length ? events.map((ev) => {
-      const s = ev.series || { title: "?" };
-      const unread = Date.parse(ev.created_at) > since;
-      const link = safeUrl(ev.chapter_url);
-      return `<div class="event ${unread ? "unread" : ""}">
-        ${coverHtml(s)}
-        <div><div class="what">${esc(s.title)}</div>
-        <div>Chapitre ${fmt(ev.chapter)} sur ${esc(siteName(ev.site_id))}</div>
-        <div class="when">${esc(when(ev.created_at))}</div></div>
-        ${link ? `<a class="btn pink" href="${esc(link)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">Lire</a>` : ""}
-      </div>`;
-    }).join("") : `<p class="empty-state">Rien pour l’instant. Les nouveaux chapitres de tes séries suivies s’afficheront ici dès qu’ils sortent (la vérification a lieu toutes les 30 minutes environ).</p>`;
-    store.set("ms_last_seen", String(Date.now()));
-    setBadge(0);
+  function renderPop() {
+    const list = $("#pop-list");
+    if (!follows.size) { list.innerHTML = `<p class="empty-state" style="padding:30px 12px">Suis des œuvres pour être prévenu de leurs nouveaux chapitres.</p>`; return; }
+    list.innerHTML = newsCache.length ? newsCache.map((ev) => {
+      const s = ev.series || { id: "", title: "?" };
+      return `<a class="nrow ${isUnread(ev) ? "unread" : ""}" href="#serie-${esc(s.id)}">
+        <div class="cover-wrap">${coverHtml(s)}</div>
+        <div><div class="n-title">${esc(s.title)}</div><div class="n-sub">Chapitre ${fmt(ev.chapter)} · ${esc(siteName(ev.site_id))} · ${esc(relTime(ev.created_at))}</div></div>
+      </a>`;
+    }).join("") : `<p class="empty-state" style="padding:30px 12px">Aucun nouveau chapitre pour l’instant. Le robot vérifie les sites toutes les 30 minutes environ.</p>`;
   }
-
-  function renderNotifBox() {
-    const box = $("#notif-box");
-    if (!("Notification" in window)) { box.textContent = ""; return; }
-    if (Notification.permission === "granted") { box.textContent = "Notifications du navigateur activées (la page doit rester ouverte dans un onglet)."; return; }
-    if (Notification.permission === "denied") { box.textContent = "Les notifications sont bloquées dans ton navigateur."; return; }
-    box.innerHTML = `<button class="btn ghost" id="btn-notif">Activer les notifications du navigateur</button> <span>(elles ne fonctionnent que si la page reste ouverte)</span>`;
-    $("#btn-notif").addEventListener("click", async () => { await Notification.requestPermission(); lastNotified = Date.now(); renderNotifBox(); });
+  function openPop() {
+    renderPop(); $("#pop").hidden = false; $("#btn-bell").setAttribute("aria-expanded", "true");
   }
-
+  function closePop() {
+    if ($("#pop").hidden) return;
+    $("#pop").hidden = true; $("#btn-bell").setAttribute("aria-expanded", "false");
+    saveSettings({ notifSeenAt: seenNow() }); updateBadge();
+    $$(".card[data-id] .tag.new").forEach((t) => t.remove());
+  }
+  $("#btn-bell").addEventListener("click", (e) => { e.stopPropagation(); $("#pop").hidden ? openPop() : closePop(); });
+  $("#btn-readall").addEventListener("click", () => { saveSettings({ notifSeenAt: seenNow() }); updateBadge(); renderPop(); });
+  $("#pop").addEventListener("click", (e) => { e.stopPropagation(); if (e.target.closest(".nrow")) closePop(); });
+  document.addEventListener("click", () => closePop());
   setInterval(refreshNews, 5 * 60 * 1000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshNews(); });
 
-  // ---------- Onglets ----------
-  function showTab(t) {
-    state.tab = t;
-    document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tab === t));
-    ["catalogue", "follows", "news"].forEach((v) => { $("#view-" + v).hidden = v !== t; });
-    say("");
-    if (t === "catalogue") loadCatalogue(true);
-    if (t === "follows") loadFollows();
-    if (t === "news") loadNews();
-  }
-  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+  /* ---------- Paramètres ---------- */
+  async function renderSettings() {
+    const seg = (key, opts) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button data-set="${key}" data-v="${v}" aria-pressed="${settings[key] === v}">${l}</button>`).join("")}</div>`;
+    const sw = (key, on) => `<button class="switch" role="switch" data-toggle="${key}" aria-checked="${on}" aria-label="Activer ou désactiver"></button>`;
+    const notifOk = "Notification" in window;
+    const perm = notifOk ? Notification.permission : "denied";
+    $("#settings-body").innerHTML = `
+      <div class="block"><h3>Compte</h3>
+        <div class="row first"><div class="t"><b>${esc(session?.user?.email || "")}</b><span>Connecté</span></div><button class="btn secondary" data-act="logout">Se déconnecter</button></div></div>
 
-  // ---------- Compte ----------
-  function openAuth(intro = "") { $("#auth-panel").hidden = false; $("#auth-intro").textContent = intro; $("#email").focus(); }
-  const closeAuth = () => { $("#auth-panel").hidden = true; $("#auth-msg").textContent = ""; };
-  $("#btn-close-auth").addEventListener("click", closeAuth);
-  $("#btn-auth").addEventListener("click", () => { if (session) sb.auth.signOut(); else openAuth(); });
+      <div class="block"><h3>Apparence</h3>
+        <div class="row first"><div class="t"><b>Thème</b></div>${seg("theme", [["auto", "Auto"], ["light", "Clair"], ["dark", "Sombre"]])}</div>
+        <div class="row"><div class="t"><b>Couleur d’accent</b></div><div class="swatches">${Object.keys(ACCENTS).map((k) => `<button class="swatch" data-set="accent" data-v="${k}" aria-pressed="${settings.accent === k}" aria-label="${ACCENT_NAMES[k]}" title="${ACCENT_NAMES[k]}" style="background:${ACCENTS[k][0]}"></button>`).join("")}</div></div>
+        <div class="row"><div class="t"><b>Taille des couvertures</b></div>${seg("cardSize", [["compact", "Petite"], ["normal", "Moyenne"], ["grand", "Grande"]])}</div></div>
 
-  function creds() {
-    const email = $("#email").value.trim(), password = $("#password").value;
-    if (!email || password.length < 6) { $("#auth-msg").textContent = "Entre un email et un mot de passe de 6 caractères minimum."; return null; }
-    return { email, password };
+      <div class="block"><h3>Lecture</h3>
+        <div class="row first"><div class="t"><b>Site de lecture préféré</b><span>Sélectionné d’office sur la fiche d’une série</span></div>
+          <select data-select="preferredSite" aria-label="Site de lecture préféré"><option value="">Le plus à jour</option>${[...sites].map(([id, n]) => `<option value="${esc(id)}" ${settings.preferredSite === id ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>
+        <div class="row"><div class="t"><b>Ouvrir les chapitres dans un nouvel onglet</b></div>${sw("newTab", settings.newTab)}</div></div>
+
+      <div class="block"><h3>Recherche</h3>
+        <div class="row first"><div class="t"><b>Tri par défaut</b></div>
+          <select data-select="defaultSort" aria-label="Tri par défaut">${Object.entries(SORTS).map(([k, s]) => `<option value="${k}" ${settings.defaultSort === k ? "selected" : ""}>${esc(s.label)}</option>`).join("")}</select></div>
+        <div class="row"><div class="t"><b>Sites masqués</b><span>Les séries de ces sites n’apparaissent plus dans la recherche</span></div>
+          <div class="chips">${[...sites].map(([id, n]) => `<button class="chip" data-hide="${esc(id)}" aria-pressed="${settings.hiddenSites.includes(id)}">${esc(n)}</button>`).join("")}</div></div></div>
+
+      <div class="block"><h3>Notifications</h3>
+        <div class="row first"><div class="t"><b>Alertes du navigateur</b><span>${!notifOk ? "Non disponibles sur cet appareil." : perm === "denied" ? "Bloquées dans ton navigateur : autorise-les dans les réglages du site." : "Vérification toutes les 5 minutes, tant que la page reste ouverte."}</span></div>
+          ${notifOk && perm !== "denied" ? sw("browserNotif", settings.browserNotif && perm === "granted") : ""}</div></div>
+
+      <div class="block"><h3>Données</h3>
+        <div class="row first"><div class="t"><b>Exporter mes données</b><span>Suivis, historique et réglages (fichier JSON)</span></div><button class="btn secondary" data-act="export">Exporter</button></div>
+        <div class="row"><div class="t"><b>Vider l’historique de lecture</b></div><button class="btn danger" data-act="clear-history">Vider</button></div>
+        <div class="row"><div class="t"><b>Réinitialiser les réglages</b></div><button class="btn danger" data-act="reset-settings">Réinitialiser</button></div></div>
+
+      <div class="block"><h3>Informations</h3>
+        <div class="row first"><div class="t"><b>Dernière vérification des sites</b><span id="last-check">…</span></div></div></div>`;
+    const { data } = await sb.from("series_sources").select("checked_at").order("checked_at", { ascending: false }).limit(1);
+    const el = $("#last-check"); if (el) el.textContent = data?.[0]?.checked_at ? relTime(data[0].checked_at) : "Aucune pour l’instant";
   }
-  $("#btn-login").addEventListener("click", async () => {
-    const c = creds(); if (!c) return;
-    const { error } = await sb.auth.signInWithPassword(c);
-    if (error) $("#auth-msg").textContent = "Connexion impossible : " + error.message;
+
+  $("#settings-body").addEventListener("click", async (e) => {
+    const set = e.target.closest("[data-set]"), tog = e.target.closest("[data-toggle]"), hide = e.target.closest("[data-hide]"), act = e.target.closest("[data-act]");
+    if (set) { saveSettings({ [set.dataset.set]: set.dataset.v }); renderSettings(); if (set.dataset.set === "defaultSort") state.searched = false; }
+    if (hide) {
+      const arr = settings.hiddenSites.slice(); toggleIn(arr, hide.dataset.hide);
+      saveSettings({ hiddenSites: arr }); state.searched = false; renderSettings();
+    }
+    if (tog) {
+      const key = tog.dataset.toggle, on = tog.getAttribute("aria-checked") !== "true";
+      if (key === "browserNotif" && on) {
+        const p = await Notification.requestPermission();
+        if (p !== "granted") { toast("Autorisation refusée par le navigateur."); return; }
+        lastNotified = Date.now();
+      }
+      saveSettings({ [key]: on }); renderSettings();
+    }
+    if (act?.dataset.act === "logout") await sb.auth.signOut();
+    if (act?.dataset.act === "export") exportData();
+    if (act?.dataset.act === "clear-history" && confirm("Supprimer tout ton historique de lecture ?")) {
+      const { error } = await sb.from("reading_history").delete().eq("user_id", session.user.id);
+      toast(error ? "Action impossible : " + error.message : "Historique vidé");
+    }
+    if (act?.dataset.act === "reset-settings" && confirm("Remettre tous les réglages par défaut ?")) {
+      saveSettings({ ...DEFAULTS, notifSeenAt: Date.now() }); state.searched = false; renderSettings(); toast("Réglages réinitialisés");
+    }
   });
-  $("#btn-signup").addEventListener("click", async () => {
-    const c = creds(); if (!c) return;
-    const { data, error } = await sb.auth.signUp(c);
-    if (error) return ($("#auth-msg").textContent = "Création impossible : " + error.message);
-    if (!data.session) { $("#auth-msg").classList.add("ok"); $("#auth-msg").textContent = "Compte créé. Vérifie ta boîte mail pour confirmer, puis connecte-toi."; }
+  $("#settings-body").addEventListener("change", (e) => {
+    const sel = e.target.closest("[data-select]"); if (!sel) return;
+    saveSettings({ [sel.dataset.select]: sel.value }); state.searched = false;
+  });
+
+  async function allRows(table, cols) {
+    const rows = [];
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await sb.from(table).select(cols).range(from, from + 999);
+      if (error) throw error;
+      rows.push(...data); if (data.length < 1000) break;
+    }
+    return rows;
+  }
+  async function exportData() {
+    try {
+      const [fol, his] = await Promise.all([allRows("follows", "created_at,series(title)"), allRows("reading_history", "chapter,site_id,chapter_url,read_at,series(title)")]);
+      const out = { exporte_le: new Date().toISOString(), suivis: fol.map((r) => ({ titre: r.series?.title, depuis: r.created_at })), historique: his.map((r) => ({ titre: r.series?.title, chapitre: r.chapter, site: r.site_id, lien: r.chapter_url, lu_le: r.read_at })), reglages: settings };
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([JSON.stringify(out, null, 2)], { type: "application/json" }));
+      a.download = `manhwa-export-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a); a.click(); a.remove();
+      toast("Export téléchargé");
+    } catch (e) { toast("Export impossible : " + e.message); }
+  }
+
+  /* ---------- Divers : clavier, défilement ---------- */
+  function lockScroll() {
+    document.body.style.overflow = (!$("#detail").hidden || !$("#filters").hidden) ? "hidden" : "";
+  }
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    if (!$("#filters").hidden) closeFilters();
+    else if (!$("#detail").hidden) closeDetail();
+    else closePop();
+  });
+
+  /* ---------- Connexion ---------- */
+  $("#login-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#login-msg").textContent = "";
+    const { error } = await sb.auth.signInWithPassword({ email: $("#email").value.trim(), password: $("#password").value });
+    if (error) $("#login-msg").textContent = "Connexion impossible : " + (error.message === "Invalid login credentials" ? "email ou mot de passe incorrect." : error.message);
   });
 
   async function onSession(s) {
     session = s;
-    $("#btn-auth").textContent = s ? "Se déconnecter" : "Se connecter";
-    $("#who-email").textContent = s ? s.user.email : "";
-    follows.clear();
-    if (s) {
-      closeAuth();
-      const { data } = await sb.from("follows").select("series_id");
-      (data || []).forEach((r) => follows.add(r.series_id));
-    }
-    showTab(state.tab);
-    refreshNews();
+    $("#login").hidden = !!s; $("#app").hidden = !s;
+    follows.clear(); newsCache = []; unreadSeries = new Set();
+    if (!s) { hideDetail(); return; }
+    await loadSettings();
+    const { data } = await sb.from("follows").select("series_id");
+    (data || []).forEach((r) => follows.add(r.series_id));
+    state.searched = false;
+    const tab = store.get("ms_tab");
+    showTab(NAV.some((n) => n.id === tab) ? tab : "search");
+    refreshNews().then(() => { if (state.tab === "search") refreshMarks(); });
+    route();
+    // listes utilisées par les filtres
+    sb.rpc("list_genres").then(({ data: g }) => { genresList = Array.isArray(g) ? g : []; });
+    sb.rpc("catalog_stats").then(({ data: st }) => { stats = st; });
   }
 
-  // ---------- Démarrage ----------
   (async function init() {
-    const { data: siteRows, error } = await sb.from("sites").select("id,name").order("name");
-    if (error) { say("Connexion à la base impossible : vérifie SUPABASE_URL et la clé en haut du fichier. (" + error.message + ")"); }
-    (siteRows || []).forEach((r) => {
-      sites.set(r.id, r.name);
-      $("#site").insertAdjacentHTML("beforeend", `<option value="${esc(r.id)}">${esc(r.name)}</option>`);
-    });
-    const { data } = await sb.auth.getSession();
+    buildNav();
+    const { data: rows, error } = await sb.from("sites").select("id,name").order("name");
+    if (error) $("#login-msg").textContent = "Connexion à la base impossible : vérifie SUPABASE_URL et la clé en haut du fichier.";
+    (rows || []).forEach((r) => sites.set(r.id, r.name));
     sb.auth.onAuthStateChange((_evt, s) => { if ((s?.user?.id || null) !== (session?.user?.id || null)) onSession(s); });
+    const { data } = await sb.auth.getSession();
     await onSession(data.session);
   })();
 </script>
