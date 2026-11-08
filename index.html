@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mes manhwas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #eeeaf7; --card: #fbfaff; --ink: #2a1b3d; --muted: #6f6486; --line: #d6cfe6;
+    --pink: #d92a73; --on-pink: #ffffff; --mint: #1f9e7a;
+    --font: "Bricolage Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #17121f; --card: #211a2e; --ink: #efeaf8; --muted: #a79bbd; --line: #3a2f4d;
+      --pink: #ff6aa3; --on-pink: #1a0f1f; --mint: #4cd3a8;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font); line-height: 1.45; }
+  main { max-width: 1040px; margin: 0 auto; padding: 20px 16px 80px; }
+  button, input, select { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--pink); outline-offset: 2px; }
+  [hidden] { display: none !important; }
+
+  .top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-bottom: 18px; }
+  h1 { font-size: 1.9rem; font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+  .tabs { display: flex; gap: 8px; flex-wrap: wrap; flex: 1; }
+  .tab { background: transparent; border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 15px; cursor: pointer; font-weight: 600; }
+  .tab[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .badge { display: inline-block; min-width: 1.4em; padding: 0 6px; margin-left: 6px; border-radius: 999px; background: var(--pink); color: var(--on-pink); font-size: .8rem; text-align: center; }
+  .who { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--muted); }
+
+  .btn { background: var(--ink); color: var(--paper); border: 0; border-radius: 8px; padding: 8px 14px; cursor: pointer; font-weight: 600; }
+  .btn.ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+  .btn.pink { background: var(--pink); color: var(--on-pink); }
+  input, select { background: var(--card); border: 1.5px solid var(--line); border-radius: 8px; padding: 9px 11px; width: 100%; }
+  label { display: block; font-size: .88rem; color: var(--muted); margin-bottom: 4px; }
+  .panel { background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 18px; margin-bottom: 18px; max-width: 460px; }
+  .msg { min-height: 1.3em; font-size: .9rem; color: var(--pink); margin: 8px 0 0; }
+  .msg.ok { color: var(--mint); }
+
+  .toolbar { display: grid; grid-template-columns: 1fr 200px; gap: 10px; margin-bottom: 8px; }
+  .count { color: var(--muted); font-size: .9rem; margin-bottom: 14px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(158px, 1fr)); gap: 14px; }
+  .card { background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px; display: flex; flex-direction: column; gap: 8px; }
+  .cover { width: 100%; aspect-ratio: 2 / 3; object-fit: cover; border-radius: 6px; background: var(--line); display: block; }
+  .cover.empty { display: grid; place-items: center; font-weight: 800; font-size: 2.4rem; color: var(--muted); }
+  .t { margin: 0; font-size: .98rem; font-weight: 800; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .srcs { display: flex; flex-direction: column; gap: 5px; }
+  .src { display: flex; border: 1.5px solid var(--line); border-radius: 7px; overflow: hidden; font-size: .82rem; }
+  .src a { padding: 5px 8px; color: inherit; text-decoration: none; }
+  .src a:hover { background: var(--line); }
+  .src .site { flex: 1; font-weight: 600; }
+  .src .ch { border-left: 1.5px solid var(--line); color: var(--muted); white-space: nowrap; }
+  .src.best { border-color: var(--mint); }
+  .src.best .ch { color: var(--mint); font-weight: 600; }
+  .follow { margin-top: auto; background: transparent; border: 1.5px solid var(--pink); color: var(--pink); border-radius: 8px; padding: 7px; cursor: pointer; font-weight: 700; }
+  .follow[aria-pressed="true"] { background: var(--pink); color: var(--on-pink); }
+  .more { display: block; margin: 22px auto 0; }
+  .empty-state { color: var(--muted); padding: 30px 6px; }
+
+  .event { display: grid; grid-template-columns: 52px 1fr auto; gap: 12px; align-items: center; background: var(--card); border: 1.5px solid var(--line); border-radius: 10px; padding: 8px; margin-bottom: 8px; max-width: 700px; }
+  .event.unread { border-left: 6px solid var(--pink); }
+  .event .cover { width: 52px; aspect-ratio: 2 / 3; }
+  .event .cover.empty { font-size: 1.3rem; }
+  .event .what { font-weight: 800; }
+  .event .when { color: var(--muted); font-size: .85rem; }
+  .notif-box { margin: 0 0 16px; color: var(--muted); font-size: .9rem; }
+  @media (max-width: 560px) { .toolbar { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<main>
+  <header class="top">
+    <h1>Mes manhwas</h1>
+    <nav class="tabs" aria-label="Sections">
+      <button class="tab" data-tab="catalogue" aria-pressed="true">Catalogue</button>
+      <button class="tab" data-tab="follows" aria-pressed="false">Mes suivis</button>
+      <button class="tab" data-tab="news" aria-pressed="false">Nouveaux chapitres<span class="badge" id="badge" hidden>0</span></button>
+    </nav>
+    <div class="who">
+      <span id="who-email"></span>
+      <button class="btn ghost" id="btn-auth">Se connecter</button>
+    </div>
+  </header>
+
+  <section id="auth-panel" class="panel" hidden>
+    <div class="msg" id="auth-intro" style="margin:0 0 10px"></div>
+    <div style="display:grid;gap:10px">
+      <div><label for="email">Email</label><input id="email" type="email" autocomplete="email"></div>
+      <div><label for="password">Mot de passe (6 caractères minimum)</label><input id="password" type="password" autocomplete="current-password"></div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+      <button class="btn" id="btn-login">Se connecter</button>
+      <button class="btn ghost" id="btn-signup">Créer un compte</button>
+      <button class="btn ghost" id="btn-close-auth">Fermer</button>
+    </div>
+    <p class="msg" id="auth-msg"></p>
+  </section>
+
+  <p class="msg" id="msg"></p>
+
+  <!-- Catalogue -->
+  <section id="view-catalogue">
+    <div class="toolbar">
+      <div><label for="q">Rechercher un titre</label><input id="q" type="search" placeholder="Solo Leveling…" autocomplete="off"></div>
+      <div><label for="site">Site</label><select id="site"><option value="">Tous les sites</option></select></div>
+    </div>
+    <div class="count" id="count"></div>
+    <div class="grid" id="grid"></div>
+    <button class="btn ghost more" id="more" hidden>Charger plus</button>
+  </section>
+
+  <!-- Mes suivis -->
+  <section id="view-follows" hidden>
+    <div class="grid" id="grid-follows"></div>
+  </section>
+
+  <!-- Nouveaux chapitres -->
+  <section id="view-news" hidden>
+    <p class="notif-box" id="notif-box"></p>
+    <div id="news-list"></div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script>
+  // ====== À REMPLIR (Supabase > Project Settings > API) ======
+  const SUPABASE_URL = "https://xxnamkpekmuuwytbegwl.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_0ZLdZQOtbHhJvkdnoC_tmw_XyNqpZo0";   // la clé "anon" ou "publishable", JAMAIS la service_role
+  // ============================================================
+
+  const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const PAGE = 24;
+  const SELECT_SOURCES = "site_id,url,cover_url,latest_chapter,latest_chapter_url";
+
+  const $ = (s, r = document) => r.querySelector(s);
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const safeUrl = (u) => { try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : ""; } catch { return ""; } };
+  const fmt = (n) => Number(n).toLocaleString("fr-FR", { maximumFractionDigits: 2 });
+  const norm = (s) => s.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  const when = (iso) => new Date(iso).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+
+  const store = {
+    get(k) { try { return localStorage.getItem(k); } catch { return null; } },
+    set(k, v) { try { localStorage.setItem(k, v); } catch { /* ignore */ } },
+  };
+
+  let session = null;
+  const sites = new Map();
+  const follows = new Set();
+  const state = { tab: "catalogue", q: "", site: "", offset: 0, total: 0, token: 0 };
+  let lastNotified = Date.now();
+
+  const say = (text, ok = false) => { const el = $("#msg"); el.textContent = text; el.classList.toggle("ok", ok); };
+  const siteName = (id) => sites.get(id) || id;
+
+  // ---------- Affichage des séries ----------
+  function coverOf(s) {
+    return safeUrl(s.cover_url) || safeUrl((s.series_sources || []).find((x) => x.cover_url)?.cover_url);
+  }
+
+  function coverHtml(s) {
+    const c = coverOf(s);
+    const letter = esc((s.title || "?").trim().charAt(0).toUpperCase());
+    return c
+      ? `<img class="cover" src="${esc(c)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-letter="${letter}">`
+      : `<div class="cover empty" aria-hidden="true">${letter}</div>`;
+  }
+
+  // Si une image ne charge pas, on met la première lettre à la place
+  document.addEventListener("error", (e) => {
+    const img = e.target;
+    if (img.tagName === "IMG" && img.classList.contains("cover")) {
+      const d = document.createElement("div");
+      d.className = "cover empty"; d.setAttribute("aria-hidden", "true"); d.textContent = img.dataset.letter || "?";
+      img.replaceWith(d);
+    }
+  }, true);
+
+  function cardHtml(s) {
+    const srcs = (s.series_sources || []).slice().sort((a, b) => (b.latest_chapter ?? -1) - (a.latest_chapter ?? -1));
+    const top = srcs[0]?.latest_chapter;
+    const on = follows.has(s.id);
+    const rows = srcs.map((x) => {
+      const page = safeUrl(x.url);
+      const last = safeUrl(x.latest_chapter_url) || page;
+      const best = srcs.length > 1 && x.latest_chapter != null && x.latest_chapter === top;
+      return `<div class="src ${best ? "best" : ""}">
+        <a class="site" href="${esc(page)}" target="_blank" rel="noopener noreferrer" title="Ouvrir la page de la série sur ${esc(siteName(x.site_id))}">${esc(siteName(x.site_id))}</a>
+        ${x.latest_chapter != null ? `<a class="ch" href="${esc(last)}" target="_blank" rel="noopener noreferrer" title="Ouvrir le dernier chapitre">ch. ${fmt(x.latest_chapter)} ›</a>` : ""}
+      </div>`;
+    }).join("");
+    return `<article class="card" data-id="${esc(s.id)}">
+      ${coverHtml(s)}
+      <h3 class="t" title="${esc(s.title)}">${esc(s.title)}</h3>
+      <div class="srcs">${rows}</div>
+      <button class="follow" data-act="follow" aria-pressed="${on}">${on ? "Suivi ✓" : "Suivre"}</button>
+    </article>`;
+  }
+
+  // ---------- Catalogue ----------
+  async function loadCatalogue(reset) {
+    const my = ++state.token;
+    if (reset) { state.offset = 0; $("#grid").innerHTML = ""; $("#more").hidden = true; }
+    const from = state.offset, to = from + PAGE - 1;
+    const embed = `series_sources${state.site ? "!inner" : ""}(${SELECT_SOURCES})`;
+    let q = sb.from("series").select(`id,title,cover_url,${embed}`, { count: "exact" });
+    if (state.q) {
+      const n = norm(state.q);
+      q = n ? q.ilike("norm_title", `%${n}%`) : q.ilike("title", `%${state.q}%`);
+    }
+    if (state.site) q = q.eq("series_sources.site_id", state.site);
+    const { data, error, count } = await q.order("title").range(from, to);
+    if (my !== state.token) return; // une recherche plus récente a pris le relais
+    if (error) { say("Chargement impossible : " + error.message); return; }
+    say("");
+    $("#grid").insertAdjacentHTML("beforeend", data.map(cardHtml).join(""));
+    state.offset += data.length;
+    state.total = count ?? state.total;
+    $("#count").textContent = state.total.toLocaleString("fr-FR") + " série" + (state.total > 1 ? "s" : "");
+    $("#more").hidden = state.offset >= state.total;
+    $("#more").disabled = false;
+    if (!state.total) $("#grid").innerHTML = `<p class="empty-state">Aucune série trouvée.</p>`;
+  }
+
+  let debounce;
+  $("#q").addEventListener("input", (e) => {
+    clearTimeout(debounce);
+    debounce = setTimeout(() => { state.q = e.target.value.trim(); loadCatalogue(true); }, 300);
+  });
+  $("#site").addEventListener("change", (e) => { state.site = e.target.value; loadCatalogue(true); });
+  $("#more").addEventListener("click", (e) => { e.target.disabled = true; loadCatalogue(false); });
+
+  // ---------- Suivis ----------
+  const SERIES_EMBED = `id,title,cover_url,series_sources(${SELECT_SOURCES})`;
+
+  async function loadFollows() {
+    const box = $("#grid-follows");
+    if (!session) { box.innerHTML = `<p class="empty-state">Connecte-toi pour retrouver ta liste de suivi.</p>`; return; }
+    const { data, error } = await sb.from("follows").select(`created_at,series(${SERIES_EMBED})`).order("created_at", { ascending: false });
+    if (error) { say("Chargement impossible : " + error.message); return; }
+    say("");
+    const list = data.map((r) => r.series).filter(Boolean);
+    box.innerHTML = list.length ? list.map(cardHtml).join("") : `<p class="empty-state">Tu ne suis encore aucune série. Va dans le catalogue et clique sur « Suivre ».</p>`;
+  }
+
+  async function toggleFollow(id) {
+    if (!session) { openAuth("Connecte-toi pour suivre des séries."); return; }
+    const on = !follows.has(id);
+    setFollowUi(id, on);
+    const { error } = on ? await sb.from("follows").insert({ series_id: id }) : await sb.from("follows").delete().eq("series_id", id);
+    if (error && error.code !== "23505") { setFollowUi(id, !on); say("Action impossible : " + error.message); return; }
+    if (state.tab === "follows" && !on) document.querySelector(`#grid-follows .card[data-id="${CSS.escape(id)}"]`)?.remove();
+    refreshNews();
+  }
+
+  function setFollowUi(id, on) {
+    on ? follows.add(id) : follows.delete(id);
+    document.querySelectorAll(`.card[data-id="${CSS.escape(id)}"] .follow`).forEach((b) => {
+      b.setAttribute("aria-pressed", on); b.textContent = on ? "Suivi ✓" : "Suivre";
+    });
+  }
+
+  document.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-act='follow']");
+    if (btn) toggleFollow(btn.closest(".card").dataset.id);
+  });
+
+  // ---------- Nouveaux chapitres ----------
+  const lastSeen = () => { const v = Number(store.get("ms_last_seen")); if (v) return v; store.set("ms_last_seen", String(Date.now())); return Date.now(); };
+
+  async function fetchEvents() {
+    if (!session || !follows.size) return [];
+    const { data, error } = await sb.from("chapter_events")
+      .select("id,chapter,chapter_url,created_at,site_id,series(id,title,cover_url)")
+      .in("series_id", [...follows]).order("created_at", { ascending: false }).limit(100);
+    return error ? [] : data;
+  }
+
+  function setBadge(n) {
+    $("#badge").hidden = !n; $("#badge").textContent = n;
+    document.title = (n ? `(${n}) ` : "") + "Mes manhwas";
+  }
+
+  async function refreshNews() {
+    if (!session) { setBadge(0); return []; }
+    const events = await fetchEvents();
+    const since = lastSeen();
+    const unread = events.filter((ev) => Date.parse(ev.created_at) > since);
+    setBadge(state.tab === "news" ? 0 : unread.length);
+    if ("Notification" in window && Notification.permission === "granted") {
+      const fresh = unread.filter((ev) => Date.parse(ev.created_at) > lastNotified);
+      fresh.slice(0, 3).forEach((ev) => new Notification("Nouveau chapitre", {
+        body: `${ev.series?.title ?? "Une série"} : chapitre ${fmt(ev.chapter)} sur ${siteName(ev.site_id)}`,
+      }));
+      if (fresh.length) lastNotified = Math.max(...fresh.map((ev) => Date.parse(ev.created_at)));
+    }
+    return events;
+  }
+
+  async function loadNews() {
+    const list = $("#news-list");
+    renderNotifBox();
+    if (!session) { list.innerHTML = `<p class="empty-state">Connecte-toi pour voir les nouveaux chapitres de tes séries.</p>`; return; }
+    if (!follows.size) { list.innerHTML = `<p class="empty-state">Suis quelques séries dans le catalogue : leurs nouveaux chapitres apparaîtront ici.</p>`; return; }
+    const since = lastSeen();
+    const events = await fetchEvents();
+    list.innerHTML = events.length ? events.map((ev) => {
+      const s = ev.series || { title: "?" };
+      const unread = Date.parse(ev.created_at) > since;
+      const link = safeUrl(ev.chapter_url);
+      return `<div class="event ${unread ? "unread" : ""}">
+        ${coverHtml(s)}
+        <div><div class="what">${esc(s.title)}</div>
+        <div>Chapitre ${fmt(ev.chapter)} sur ${esc(siteName(ev.site_id))}</div>
+        <div class="when">${esc(when(ev.created_at))}</div></div>
+        ${link ? `<a class="btn pink" href="${esc(link)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none">Lire</a>` : ""}
+      </div>`;
+    }).join("") : `<p class="empty-state">Rien pour l’instant. Les nouveaux chapitres de tes séries suivies s’afficheront ici dès qu’ils sortent (la vérification a lieu toutes les 30 minutes environ).</p>`;
+    store.set("ms_last_seen", String(Date.now()));
+    setBadge(0);
+  }
+
+  function renderNotifBox() {
+    const box = $("#notif-box");
+    if (!("Notification" in window)) { box.textContent = ""; return; }
+    if (Notification.permission === "granted") { box.textContent = "Notifications du navigateur activées (la page doit rester ouverte dans un onglet)."; return; }
+    if (Notification.permission === "denied") { box.textContent = "Les notifications sont bloquées dans ton navigateur."; return; }
+    box.innerHTML = `<button class="btn ghost" id="btn-notif">Activer les notifications du navigateur</button> <span>(elles ne fonctionnent que si la page reste ouverte)</span>`;
+    $("#btn-notif").addEventListener("click", async () => { await Notification.requestPermission(); lastNotified = Date.now(); renderNotifBox(); });
+  }
+
+  setInterval(refreshNews, 5 * 60 * 1000);
+  document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshNews(); });
+
+  // ---------- Onglets ----------
+  function showTab(t) {
+    state.tab = t;
+    document.querySelectorAll(".tab").forEach((b) => b.setAttribute("aria-pressed", b.dataset.tab === t));
+    ["catalogue", "follows", "news"].forEach((v) => { $("#view-" + v).hidden = v !== t; });
+    say("");
+    if (t === "catalogue") loadCatalogue(true);
+    if (t === "follows") loadFollows();
+    if (t === "news") loadNews();
+  }
+  document.querySelectorAll(".tab").forEach((b) => b.addEventListener("click", () => showTab(b.dataset.tab)));
+
+  // ---------- Compte ----------
+  function openAuth(intro = "") { $("#auth-panel").hidden = false; $("#auth-intro").textContent = intro; $("#email").focus(); }
+  const closeAuth = () => { $("#auth-panel").hidden = true; $("#auth-msg").textContent = ""; };
+  $("#btn-close-auth").addEventListener("click", closeAuth);
+  $("#btn-auth").addEventListener("click", () => { if (session) sb.auth.signOut(); else openAuth(); });
+
+  function creds() {
+    const email = $("#email").value.trim(), password = $("#password").value;
+    if (!email || password.length < 6) { $("#auth-msg").textContent = "Entre un email et un mot de passe de 6 caractères minimum."; return null; }
+    return { email, password };
+  }
+  $("#btn-login").addEventListener("click", async () => {
+    const c = creds(); if (!c) return;
+    const { error } = await sb.auth.signInWithPassword(c);
+    if (error) $("#auth-msg").textContent = "Connexion impossible : " + error.message;
+  });
+  $("#btn-signup").addEventListener("click", async () => {
+    const c = creds(); if (!c) return;
+    const { data, error } = await sb.auth.signUp(c);
+    if (error) return ($("#auth-msg").textContent = "Création impossible : " + error.message);
+    if (!data.session) { $("#auth-msg").classList.add("ok"); $("#auth-msg").textContent = "Compte créé. Vérifie ta boîte mail pour confirmer, puis connecte-toi."; }
+  });
+
+  async function onSession(s) {
+    session = s;
+    $("#btn-auth").textContent = s ? "Se déconnecter" : "Se connecter";
+    $("#who-email").textContent = s ? s.user.email : "";
+    follows.clear();
+    if (s) {
+      closeAuth();
+      const { data } = await sb.from("follows").select("series_id");
+      (data || []).forEach((r) => follows.add(r.series_id));
+    }
+    showTab(state.tab);
+    refreshNews();
+  }
+
+  // ---------- Démarrage ----------
+  (async function init() {
+    const { data: siteRows, error } = await sb.from("sites").select("id,name").order("name");
+    if (error) { say("Connexion à la base impossible : vérifie SUPABASE_URL et la clé en haut du fichier. (" + error.message + ")"); }
+    (siteRows || []).forEach((r) => {
+      sites.set(r.id, r.name);
+      $("#site").insertAdjacentHTML("beforeend", `<option value="${esc(r.id)}">${esc(r.name)}</option>`);
+    });
+    const { data } = await sb.auth.getSession();
+    sb.auth.onAuthStateChange((_evt, s) => { if ((s?.user?.id || null) !== (session?.user?.id || null)) onSession(s); });
+    await onSession(data.session);
+  })();
+</script>
+</body>
+</html>
