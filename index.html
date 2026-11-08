@@ -129,39 +129,88 @@
 
   /* ---------- Fiche d'une série ---------- */
   .overlay { position: fixed; inset: 0; z-index: 50; background: rgba(15,10,25,.58); display: grid; place-items: center; padding: 24px; overflow: auto; }
-  .panel { position: relative; width: min(980px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: var(--surface); border-radius: 22px; box-shadow: var(--shadow); }
+  .panel { position: relative; width: min(1040px, 100%); max-height: calc(100vh - 48px); overflow: auto; background: var(--bg); border-radius: 22px; box-shadow: var(--shadow); }
   .d-close { position: absolute; top: 14px; right: 14px; z-index: 3; }
-  .d-hero { display: grid; grid-template-columns: 230px 1fr; gap: 28px; padding: 30px 30px 8px; }
-  .d-cover { aspect-ratio: 2 / 3; border-radius: 14px; overflow: hidden; box-shadow: var(--shadow); background: var(--line); }
+  .d-grid { display: grid; grid-template-columns: minmax(250px, 320px) minmax(0, 1fr); gap: 20px; padding: 24px; align-items: start; }
+  .d-left, .d-right { display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+  .d-cover { aspect-ratio: 3 / 4; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); background: var(--line); }
   .d-cover .cover { transition: none; }
-  .d-info { min-width: 0; padding-right: 34px; }
-  .d-info h2 { font-size: 1.9rem; line-height: 1.15; overflow-wrap: anywhere; }
-  .facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
-  .fact { padding: 4px 11px; border-radius: 999px; background: var(--surface-2); border: 1px solid var(--line); font-size: .85rem; font-weight: 600; }
-  .d-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
+  .box { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; }
+  .d-desc { padding: 18px 58px 16px 20px; }
+  .d-desc h2 { font-size: 1.65rem; line-height: 1.15; margin: 0 0 10px; overflow-wrap: anywhere; }
+  .desc { white-space: pre-line; margin: 0; }
+  .desc.clamp { display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden; }
+  .link { background: none; border: 0; color: var(--accent); font-weight: 700; padding: 8px 0 0; display: inline-flex; align-items: center; gap: 4px; }
+  .link svg { width: 16px; height: 16px; transition: transform .2s; }
+  .link[aria-expanded="true"] svg { transform: rotate(180deg); }
+
+  .statcard { background: var(--surface); border: 1.5px solid var(--line); border-radius: 16px; overflow: hidden; }
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stat-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 12px 6px; border: 0; border-right: 1.5px solid var(--line); background: transparent; text-align: center; min-width: 0; }
+  .stat-cell:last-child { border-right: 0; }
+  .stat-cell b { display: flex; align-items: center; gap: 5px; font-size: 1.1rem; }
+  .stat-cell b svg { width: 18px; height: 18px; }
+  .stat-cell small { color: var(--muted); font-size: .76rem; font-weight: 600; }
+  .stat-cell.notif { cursor: pointer; }
+  .stat-cell.notif[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .stat-cell.notif[aria-pressed="true"] small { color: inherit; }
+  .stat-cell.notif[aria-disabled="true"] { opacity: .5; }
+  .pairs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 12px; border-top: 1.5px solid var(--line); }
+  .pair { border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+  .pair small { display: block; color: var(--muted); font-size: .74rem; }
+  .pair b { display: flex; align-items: center; gap: 7px; font-size: .92rem; }
+  .sdot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+  .s-ongoing { background: var(--ok); } .s-completed { background: #3b82f6; } .s-hiatus { background: #e8a30c; } .s-dropped { background: #9aa0a6; } .s-type { background: var(--accent); }
+  .kv { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-top: 1.5px solid var(--line); font-size: .92rem; }
+  .kv svg { width: 18px; height: 18px; color: var(--muted); }
+  .kv span { color: var(--muted); }
+  .kv b { margin-left: auto; text-align: right; font-weight: 600; overflow-wrap: anywhere; }
+  .genres-row { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; border-top: 1.5px solid var(--line); }
+  .genres-row .chip { padding: 4px 11px; font-size: .82rem; }
+  .wide { width: 100%; }
+
+  .actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .actions-row .btn { width: 100%; padding: 12px 8px; }
   .follow-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-  .d-sec { padding: 20px 30px; }
-  .d-sec h3 { margin: 0 0 12px; font-size: 1.05rem; }
-  .src-seg { display: flex; flex-wrap: wrap; gap: 8px; }
-  .src-btn { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 10px 16px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface); text-align: left; }
-  .src-btn b { font-size: .95rem; }
-  .src-btn small { color: var(--muted); font-size: .8rem; }
-  .src-btn[aria-pressed="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
-  .src-btn .best { color: var(--ok); font-weight: 700; }
-  .desc { white-space: pre-line; margin: 0; color: var(--ink); }
-  .desc.clamp { display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; }
-  .link { background: none; border: 0; color: var(--accent); font-weight: 700; padding: 8px 0 0; }
-  .ch-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-  .ch-head h3 { margin: 0; }
-  .ch-tools { display: flex; gap: 8px; align-items: center; }
-  .ch-tools input { width: 150px; padding: 8px 12px; }
-  .ch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); gap: 8px; max-height: 360px; overflow: auto; padding: 2px; }
-  .ch { display: block; padding: 9px 0; text-align: center; border-radius: 10px; border: 1.5px solid var(--line); background: var(--surface-2); font-weight: 700; font-size: .9rem; text-decoration: none; }
-  .ch:hover { border-color: var(--accent); }
-  .ch.read { color: var(--muted); background: transparent; font-weight: 500; }
-  .ch.read::after { content: " ✓"; font-size: .75rem; }
-  .ch.last { border-color: var(--accent); color: var(--accent); }
+  .resume { align-self: flex-start; font-weight: 700; color: var(--accent); text-decoration: none; margin: -4px 0 0 4px; }
+  .resume:hover { text-decoration: underline; }
+
+  .ch-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 18px 10px; }
+  .ch-top h3 { margin: 0; font-size: 1.05rem; }
+  .ch-tools { display: flex; gap: 8px; }
+  .ch-tools .btn svg { width: 16px; height: 16px; }
+  .btn[aria-disabled="true"] { opacity: .5; }
+  .menu-wrap { position: relative; }
+  .menu { position: absolute; right: 0; top: calc(100% + 6px); z-index: 6; min-width: 250px; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; box-shadow: var(--shadow); padding: 6px; }
+  .menu button { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px; border: 0; border-radius: 10px; background: transparent; text-align: left; }
+  .menu button:hover { background: var(--surface-2); }
+  .menu button[aria-checked="true"] { font-weight: 700; color: var(--accent); }
+  .menu small { color: var(--muted); font-weight: 500; }
+  .menu p { margin: 6px 10px 8px; color: var(--muted); font-size: .78rem; }
+  .ch-search { padding: 0 18px 12px; }
+  .ch-search svg { left: 32px; }
+  .ch-search input { height: 42px; }
+  .ch-list { max-height: 430px; overflow: auto; border-top: 1.5px solid var(--line); border-radius: 0 0 14px 14px; }
+  .chrow { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 18px; border-bottom: 1px solid var(--line); text-decoration: none; font-weight: 600; }
+  .chrow:last-child { border-bottom: 0; }
+  .chrow:hover { background: var(--surface-2); }
+  .chrow.read { color: var(--muted); font-weight: 500; }
+  .chrow.last { box-shadow: inset 3px 0 0 var(--accent); }
+  .ctags { display: flex; align-items: center; gap: 8px; font-size: .78rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+  .ctags .via { padding: 2px 9px; border: 1px solid var(--line); border-radius: 999px; }
+  .ctags .lr { color: var(--accent); }
   .note { color: var(--muted); font-size: .85rem; margin: 10px 0 0; }
+  .phone-only { display: none; }
+
+  .mini { position: fixed; inset: 0; z-index: 80; background: rgba(15,10,25,.5); display: grid; place-items: center; padding: 20px; }
+  .mini-card { background: var(--surface); border-radius: 20px; padding: 22px; width: min(420px, 100%); box-shadow: var(--shadow); }
+  .mini-card h3 { margin: 0 0 4px; font-size: 1.05rem; }
+  .mini-card p { margin: 0 0 14px; color: var(--muted); font-size: .88rem; }
+  .stars { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .stars button { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 9px 0; border-radius: 12px; border: 1.5px solid var(--line); background: var(--surface-2); color: var(--muted); font-weight: 700; }
+  .stars button svg { width: 20px; height: 20px; }
+  .stars button[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .mini-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
   /* ---------- Historique ---------- */
   .day { margin: 22px 0 8px; font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: capitalize; }
@@ -225,11 +274,22 @@
     .sheet { width: 100%; height: auto; max-height: 88vh; border-radius: 22px 22px 0 0; }
     .overlay { padding: 0; place-items: stretch; }
     .panel { max-height: none; min-height: 100%; border-radius: 0; }
-    .d-hero { grid-template-columns: 1fr; padding: 54px 20px 6px; gap: 18px; justify-items: center; text-align: center; }
-    .d-cover { width: 150px; }
-    .d-info { padding-right: 0; }
-    .facts, .d-actions, .chips.center { justify-content: center; }
-    .d-sec { padding: 18px 20px; }
+    .desk-only { display: none !important; }
+    .phone-only { display: block; }
+    .d-grid { grid-template-columns: 1fr; padding: 58px 14px 24px; gap: 14px; }
+    .d-left { align-items: center; }
+    .d-cover { width: 200px; aspect-ratio: 4 / 5; }
+    .d-desc { padding: 16px 16px 14px; }
+    .d-desc h2 { font-size: 1.45rem; }
+    .statcard.pill { margin-top: 14px; }
+    .actions-phone { display: flex; flex-direction: column; gap: 10px; }
+    .actions-phone .btn { width: 100%; padding: 13px 10px; }
+    .actions-phone .two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ch-list { max-height: 380px; }
+    .ch-tools { width: 100%; }
+    .ch-tools > * { flex: 1; }
+    .ch-tools .menu-wrap .btn { width: 100%; }
+    .menu { left: 0; right: auto; }
     .row { flex-wrap: wrap; }
     .popover { position: fixed; left: 12px; right: 12px; top: calc(var(--appbar-h) + 8px); width: auto; }
   }
@@ -376,6 +436,13 @@
     bell: I('<path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8"/><path d="M10.3 21a2 2 0 0 0 3.4 0"/>'),
     close: I('<path d="M6 6l12 12M18 6 6 18"/>'),
     play: I('<path d="M8 5v14l11-7z"/>', "fill"),
+    star: I('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/>'),
+    starFill: I('<path d="M12 3.5l2.6 5.3 5.9.9-4.3 4.1 1 5.8-5.2-2.8-5.2 2.8 1-5.8-4.3-4.1 5.9-.9z"/>', "fill"),
+    pencil: I('<path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/>'),
+    image: I('<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="1.5"/><path d="M21 16l-5-5-8 8"/>'),
+    chevron: I('<path d="M6 9l6 6 6-6"/>'),
+    sort: I('<path d="M8 6v12M8 18l-3-3M8 18l3-3M16 18V6M16 6l-3 3M16 6l3 3"/>'),
+    book: I('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'),
     logo: I('<rect x="4" y="3" width="7" height="18" rx="2"/><rect x="13" y="3" width="7" height="11" rx="2"/>'),
   };
   const NAV = [
@@ -446,6 +513,7 @@
   let session = null;
   const sites = new Map();                 // id -> nom
   const follows = new Set();               // ids des séries suivies
+  const notifyOff = new Set();             // séries suivies dont les notifications sont coupées
   let genresList = [];
   let stats = null;
   const state = { tab: "search", q: "", filters: { sites: [], types: [], statuses: [], genres: [], genreMode: "all", sort: null }, offset: 0, total: 0, token: 0, loading: false, searched: false };
@@ -672,6 +740,7 @@
   async function toggleFollow(id) {
     const on = !follows.has(id);
     on ? follows.add(id) : follows.delete(id);
+    if (!on) notifyOff.delete(id);
     updateFollowBtn(); refreshMarks();
     const { error } = on ? await sb.from("follows").insert({ series_id: id }) : await sb.from("follows").delete().eq("series_id", id);
     if (error && error.code !== "23505") {
@@ -684,10 +753,13 @@
   }
 
   /* ---------- Fiche d'une série ---------- */
-  let cur = null;      // { s, siteId, read:Set, order:'desc'|'asc', fromHash }
-  const DETAIL_COLS = `${SERIES_COLS},genres,description,series_sources(id,site_id,url,cover_url,latest_chapter,latest_chapter_url,chapter_count,chapters)`;
+  let cur = null;      // { s, merged, siteId, read:Set, order, q, myRating }
+  const DETAIL_BASE = `${SERIES_COLS},genres,description,series_sources(id,site_id,url,cover_url,latest_chapter,latest_chapter_url,chapter_count,chapters)`;
+  const DETAIL_FULL = DETAIL_BASE.replace(",genres,", ",author,artist,genres,");
   let hadDetailAtLoad = /^#serie-/.test(location.hash);
+  let usWarned = false;
 
+  // Chapitres d'une source : liste exacte si connue, sinon reconstituée à partir du dernier chapitre
   function chaptersOf(src) {
     if (Array.isArray(src.chapters) && src.chapters.length) {
       return { approx: false, list: src.chapters.map(([n, suf]) => ({ n: Number(n), url: /^https?:/.test(suf) ? suf : src.url + suf })).sort((a, b) => a.n - b.n) };
@@ -699,103 +771,238 @@
     if (last % 1) list.push({ n: last, url: tpl(src.url, last) });
     return { approx: true, list };
   }
-  function pickSource(s) {
-    const srcs = s.series_sources || [];
-    return srcs.find((x) => x.site_id === settings.preferredSite) || srcs.slice().sort((a, b) => (b.latest_chapter ?? -1) - (a.latest_chapter ?? -1))[0];
+
+  // UNE seule liste pour tous les sites : chaque chapitre sait sur quels sites il existe
+  function mergedChapters(s) {
+    const byN = new Map();
+    let exact = false;
+    const srcs = (s.series_sources || []).slice().sort((x, y) => (y.latest_chapter ?? -1) - (x.latest_chapter ?? -1));
+    for (const src of srcs) {
+      const { list, approx } = chaptersOf(src);
+      if (!approx) exact = true;
+      for (const c of list) {
+        let e = byN.get(c.n);
+        if (!e) byN.set(c.n, (e = { n: c.n, urls: new Map() }));
+        if (!e.urls.has(src.site_id)) e.urls.set(src.site_id, c.url);
+      }
+    }
+    return { list: [...byN.values()].sort((a, b) => a.n - b.n), exact, order: srcs.map((x) => x.site_id) };
+  }
+  // Le site choisi s'il a ce chapitre, sinon le premier autre site qui l'a
+  function resolveLink(ch, siteId, order) {
+    if (ch.urls.has(siteId)) return { siteId, url: ch.urls.get(siteId) };
+    for (const id of order) if (ch.urls.has(id)) return { siteId: id, url: ch.urls.get(id) };
+    return null;
   }
   const linkAttrs = () => (settings.newTab ? `target="_blank" rel="noopener noreferrer"` : `rel="noopener"`);
+  const rateLabel = () => (cur.myRating != null ? `${ICON.starFill}Ma note : ${fmt(cur.myRating)}/10` : `${ICON.star}Noter`);
+  const sortLabel = () => `${ICON.sort}<span>${cur.order === "desc" ? "Récents" : "Anciens"}</span>`;
+
+  function siteMenuHtml() {
+    const srcs = (cur.s.series_sources || []).slice().sort((a, b) => siteName(a.site_id).localeCompare(siteName(b.site_id)));
+    return srcs.map((x) => {
+      const n = chaptersOf(x).list.length;
+      return `<button role="menuitemradio" data-act="site-pick" data-site="${esc(x.site_id)}" aria-checked="${x.site_id === cur.siteId}"><span>${esc(siteName(x.site_id))}</span><small>${n ? n + " chap." : "—"}</small></button>`;
+    }).join("") + `<p>Si un chapitre n’existe pas sur le site choisi, il s’ouvre automatiquement sur l’autre.</p>`;
+  }
 
   function renderDetail() {
-    const { s } = cur;
-    const srcs = (s.series_sources || []).slice().sort((a, b) => (b.latest_chapter ?? -1) - (a.latest_chapter ?? -1));
-    const src = srcs.find((x) => x.site_id === cur.siteId) || srcs[0];
-    const { list, approx } = src ? chaptersOf(src) : { list: [], approx: true };
-    const top = srcs[0]?.latest_chapter;
+    const s = cur.s, m = cur.merged, list = m.list;
+    const followed = follows.has(s.id);
     const lastRead = cur.read.size ? Math.max(...cur.read) : null;
     const first = list[0], last = list[list.length - 1];
-    const next = lastRead != null ? list.find((c) => c.n > lastRead) : null;
-    const aBtn = (c, cls, label) => c
-      ? `<a class="btn ${cls}" href="${esc(safeUrl(c.url))}" ${linkAttrs()} data-read="${c.n}">${ICON.play}${label}</a>`
-      : `<span class="btn ${cls}" aria-disabled="true">${label}</span>`;
-    const facts = [s.type && typeLabel(s.type), s.status && statusLabel(s.status), s.rating != null && `★ ${fmt(s.rating)}/10`, list.length && !approx && `${list.length} chapitres`].filter(Boolean);
-    const on = follows.has(s.id);
-    const desc = s.description || "";
+    const resumeCh = lastRead != null ? (list.find((c) => c.n > lastRead) || list.find((c) => c.n === lastRead)) : null;
+    const a = (ch, cls, label) => {
+      const r = ch && resolveLink(ch, cur.siteId, m.order);
+      return r
+        ? `<a class="btn ${cls}" href="${esc(safeUrl(r.url))}" ${linkAttrs()} data-read="${ch.n}" data-site="${esc(r.siteId)}">${label}</a>`
+        : `<span class="btn ${cls}" aria-disabled="true">${label}</span>`;
+    };
+    const followBtn = `<button class="btn secondary follow-btn" data-act="follow" aria-pressed="${followed}">${followed ? ICON.bookmarkFill : ICON.bookmark}<span>${followed ? "Suivi" : "Suivre"}</span></button>`;
+    const rateBtn = (cls) => `<button class="btn secondary ${cls}" data-act="rate">${rateLabel()}</button>`;
 
-    const continueBtn = lastRead == null ? "" : next
-      ? aBtn(next, "", `Continuer · ch. ${fmt(next.n)}`)
-      : aBtn(list.find((c) => c.n === lastRead), "secondary", `À jour · ch. ${fmt(lastRead)}`);
+    const ratingRow = `<div class="stat-row">
+      <div class="stat-cell"><b>${ICON.starFill}${s.rating != null ? fmt(s.rating) : "—"}</b><small>Note</small></div>
+      <div class="stat-cell"><b>${ICON.book}${list.length ? (m.exact ? list.length : "~" + list.length) : "—"}</b><small>Chapitres</small></div>
+      <button class="stat-cell notif" data-act="notif" aria-pressed="${followed && !notifyOff.has(s.id)}" ${followed ? "" : 'aria-disabled="true"'} title="Être prévenu quand un chapitre sort"><b>${ICON.bell}</b><small>Notifs</small></button>
+    </div>`;
+    const detailsCard = `
+      <div class="pairs">
+        <div class="pair"><small>Statut</small><b><i class="sdot s-${esc(s.status || "x")}"></i>${esc(s.status ? statusLabel(s.status) : "—")}</b></div>
+        <div class="pair"><small>Type</small><b><i class="sdot s-type"></i>${esc(s.type ? typeLabel(s.type) : "—")}</b></div>
+      </div>
+      ${s.author ? `<div class="kv">${ICON.pencil}<span>Auteur</span><b>${esc(s.author)}</b></div>` : ""}
+      ${s.artist ? `<div class="kv">${ICON.image}<span>Artiste</span><b>${esc(s.artist)}</b></div>` : ""}
+      ${(s.genres || []).length ? `<div class="genres-row">${s.genres.map((g) => `<button class="chip" data-genre="${esc(g)}">${esc(g)}</button>`).join("")}</div>` : ""}`;
+
+    const desc = s.description || "";
+    const descHtml = desc
+      ? `<p class="desc clamp" id="d-desc">${esc(desc)}</p>${desc.length > 220 ? `<button class="link" data-act="more" aria-expanded="false"><span>Voir plus</span>${ICON.chevron}</button>` : ""}`
+      : `<p class="note" style="margin:0">Le résumé sera récupéré automatiquement au prochain passage du robot.</p>`;
+
+    const resumeHtml = resumeCh ? (() => {
+      const r = resolveLink(resumeCh, cur.siteId, m.order);
+      return r ? `<a class="resume" href="${esc(safeUrl(r.url))}" ${linkAttrs()} data-read="${resumeCh.n}" data-site="${esc(r.siteId)}">Reprendre au chapitre ${fmt(resumeCh.n)} ›</a>` : "";
+    })() : "";
+
+    const multi = (s.series_sources || []).length > 1;
+    const chaptersBox = `<section class="box chapters">
+      <div class="ch-top"><h3>${list.length ? `${list.length} chapitre${list.length > 1 ? "s" : ""}` : "Chapitres"}</h3>
+        <div class="ch-tools">
+          <div class="menu-wrap"><button class="btn secondary small" id="site-btn" data-act="site-menu" aria-haspopup="menu" aria-expanded="false" ${multi ? "" : 'aria-disabled="true"'}>Site : ${esc(siteName(cur.siteId))}${ICON.chevron}</button><div class="menu" id="site-menu" role="menu" hidden>${siteMenuHtml()}</div></div>
+          <button class="btn secondary small" id="sort-btn" data-act="sort">${sortLabel()}</button>
+        </div>
+      </div>
+      <div class="ch-search field">${ICON.search}<input id="ch-q" type="search" placeholder="Rechercher un chapitre…" inputmode="decimal" autocomplete="off" aria-label="Rechercher un chapitre" value="${esc(cur.q)}"></div>
+      <div class="ch-list" id="ch-list"></div>
+      ${!m.exact && list.length ? `<p class="note" style="padding:0 18px 14px">Liste reconstituée à partir du dernier chapitre : la liste exacte arrivera au prochain passage du robot.</p>` : ""}
+    </section>`;
 
     $("#detail-panel").innerHTML = `
-      <button class="icon-btn d-close" id="d-close" aria-label="Fermer">${ICON.close}</button>
-      <div class="d-hero">
-        <div class="d-cover">${coverHtml(s)}</div>
-        <div class="d-info">
-          <h2 id="d-title">${esc(s.title)}</h2>
-          <div class="facts">${facts.map((f) => `<span class="fact">${esc(f)}</span>`).join("")}</div>
-          ${(s.genres || []).length ? `<div class="chips">${s.genres.map((g) => `<button class="chip" data-genre="${esc(g)}">${esc(g)}</button>`).join("")}</div>` : ""}
-          <div class="d-actions">
-            ${continueBtn || aBtn(first, "", "Commencer à lire")}
-            ${continueBtn ? aBtn(first, "secondary", "Depuis le début") : ""}
-            ${aBtn(last, "secondary", last ? `Dernier chapitre · ${fmt(last.n)}` : "Dernier chapitre")}
-            <button class="btn secondary follow-btn" id="d-follow" aria-pressed="${on}">${on ? ICON.bookmarkFill : ICON.bookmark}<span>${on ? "Suivi" : "Suivre"}</span></button>
-          </div>
+      <button class="icon-btn d-close" data-act="close" aria-label="Fermer">${ICON.close}</button>
+      <div class="d-grid">
+        <div class="d-left">
+          <div class="d-cover">${coverHtml(s)}</div>
+          <div class="desk-only">${rateBtn("wide")}</div>
+          <div class="statcard desk-only">${ratingRow}${detailsCard}</div>
         </div>
-      </div>
-      <div class="d-sec"><h3>Lire sur</h3>
-        <div class="src-seg">${srcs.map((x) => `<button class="src-btn" data-site="${esc(x.site_id)}" aria-pressed="${x.site_id === src?.site_id}"><b>${esc(siteName(x.site_id))}</b><small>${x.latest_chapter != null ? `ch. ${fmt(x.latest_chapter)}` : "—"}${srcs.length > 1 && x.latest_chapter != null && x.latest_chapter === top ? ` · <span class="best">à jour</span>` : ""}</small></button>`).join("")}</div>
-      </div>
-      <div class="d-sec"><h3>Résumé</h3>
-        ${desc ? `<p class="desc clamp" id="d-desc">${esc(desc)}</p>${desc.length > 280 ? `<button class="link" id="d-more">Voir plus</button>` : ""}`
-               : `<p class="note">Le résumé de cette série sera récupéré automatiquement au prochain passage du robot.</p>`}
-      </div>
-      <div class="d-sec">
-        <div class="ch-head"><h3>Chapitres${list.length ? ` <small style="color:var(--muted);font-weight:500">(${list.length})</small>` : ""}</h3>
-          <div class="ch-tools">
-            <input type="number" step="any" min="0" id="ch-jump" placeholder="Aller au chapitre…" aria-label="Aller au chapitre">
-            <button class="btn small" id="ch-go">Lire</button>
-            <button class="btn secondary small" id="ch-sort">${cur.order === "desc" ? "Récents ↓" : "Anciens ↑"}</button>
+        <div class="d-right">
+          <div class="box d-desc">
+            <h2 id="d-title">${esc(s.title)}</h2>
+            ${descHtml}
+            <div class="statcard phone-only pill">${ratingRow}</div>
           </div>
+          <div class="actions-row desk-only">${followBtn}${a(first, "secondary", "1er chapitre")}${a(last, "secondary", "Dernier chapitre")}</div>
+          <div class="actions-phone phone-only">${followBtn}<div class="two">${a(first, "secondary", "1er chapitre")}${rateBtn("")}</div></div>
+          ${resumeHtml}
+          <div class="statcard phone-only">${detailsCard}</div>
+          ${chaptersBox}
         </div>
-        ${list.length ? `<div class="ch-grid" id="ch-grid">${(cur.order === "desc" ? list.slice().reverse() : list).map((c) =>
-            `<a class="ch ${cur.read.has(c.n) ? "read" : ""} ${c.n === lastRead ? "last" : ""}" href="${esc(safeUrl(c.url))}" ${linkAttrs()} data-read="${c.n}" data-n="${c.n}">${fmt(c.n)}</a>`).join("")}</div>`
-          : `<p class="note">Aucune liste de chapitres pour ce site pour l’instant.</p>`}
-        ${approx && list.length ? `<p class="note">Liste reconstituée à partir du dernier chapitre : la liste exacte sera récupérée au prochain passage du robot.</p>` : ""}
       </div>`;
-    cur.list = list; cur.src = src;
-    $("#d-close").addEventListener("click", closeDetail);
+    renderChapterList(true);
   }
 
-  function updateFollowBtn() {
-    const b = $("#d-follow"); if (!b || !cur) return;
+  function renderChapterList(initial) {
+    const box = $("#ch-list"); if (!box || !cur) return;
+    const m = cur.merged;
+    const q = cur.q.trim().replace(",", ".");
+    let rows = m.list.filter((c) => !q || String(c.n).includes(q));
+    if (cur.order === "desc") rows = rows.slice().reverse();
+    const lastRead = cur.read.size ? Math.max(...cur.read) : null;
+    box.innerHTML = rows.length ? rows.map((c) => {
+      const r = resolveLink(c, cur.siteId, m.order);
+      if (!r) return "";
+      const via = r.siteId !== cur.siteId ? `<span class="via">via ${esc(siteName(r.siteId))}</span>` : "";
+      const read = cur.read.has(c.n);
+      return `<a class="chrow ${read ? "read" : ""} ${c.n === lastRead ? "last" : ""}" href="${esc(safeUrl(r.url))}" ${linkAttrs()} data-read="${c.n}" data-site="${esc(r.siteId)}" data-n="${c.n}"><span>Chapitre ${fmt(c.n)}</span><span class="ctags">${c.n === lastRead ? `<span class="lr">dernier lu</span>` : ""}${via}${read ? "<span>✓</span>" : ""}</span></a>`;
+    }).join("") : `<p class="empty-state" style="padding:26px">${m.list.length ? "Aucun chapitre ne correspond." : "Aucune liste de chapitres pour l’instant."}</p>`;
+    if (initial) { const el = box.querySelector(".chrow.last"); if (el) box.scrollTop = Math.max(0, el.offsetTop - 80); }
+  }
+
+  // Met à jour les boutons qui changent sans tout redessiner
+  function updateLive() {
+    if (!cur) return;
     const on = follows.has(cur.s.id);
-    b.setAttribute("aria-pressed", on); b.innerHTML = (on ? ICON.bookmarkFill : ICON.bookmark) + `<span>${on ? "Suivi" : "Suivre"}</span>`;
+    $$('#detail [data-act="follow"]').forEach((b) => {
+      b.setAttribute("aria-pressed", on);
+      b.innerHTML = (on ? ICON.bookmarkFill : ICON.bookmark) + `<span>${on ? "Suivi" : "Suivre"}</span>`;
+    });
+    $$('#detail [data-act="notif"]').forEach((b) => {
+      b.setAttribute("aria-pressed", on && !notifyOff.has(cur.s.id));
+      on ? b.removeAttribute("aria-disabled") : b.setAttribute("aria-disabled", "true");
+    });
+    $$('#detail [data-act="rate"]').forEach((b) => { b.innerHTML = rateLabel(); });
+  }
+  const updateFollowBtn = updateLive;
+
+  async function saveUserSeries(patch) {
+    const seriesId = cur?.s.id; if (!seriesId || !session) return false;
+    const { error } = await sb.from("user_series").upsert({ user_id: session.user.id, series_id: seriesId, ...patch, updated_at: new Date().toISOString() });
+    if (error && !usWarned) { usWarned = true; toast("Enregistrement impossible : " + error.message + " (as-tu lancé schema_v3.sql ?)"); }
+    return !error;
   }
 
-  async function markRead(n) {
-    if (!session || !cur || cur.read.has(n)) return;
-    cur.read.add(n);
-    const chip = $(`.ch[data-n="${CSS.escape(String(n))}"]`); chip?.classList.add("read");
-    const c = cur.list.find((x) => x.n === n);
+  async function markRead(n, siteId, url) {
+    if (!session || !cur) return;
+    const seriesId = cur.s.id;
+    if (!cur.read.has(n)) { cur.read.add(n); $(`#ch-list .chrow[data-n="${CSS.escape(String(n))}"]`)?.classList.add("read"); }
     await sb.from("reading_history").upsert({
-      user_id: session.user.id, series_id: cur.s.id, chapter: n, site_id: cur.src?.site_id, chapter_url: c?.url, read_at: new Date().toISOString(),
+      user_id: session.user.id, series_id: seriesId, chapter: n, site_id: siteId, chapter_url: url, read_at: new Date().toISOString(),
     });
+  }
+
+  async function toggleNotify() {
+    const id = cur.s.id;
+    if (!follows.has(id)) { toast("Suis d’abord cette œuvre pour recevoir ses notifications."); return; }
+    const turnOn = notifyOff.has(id);
+    turnOn ? notifyOff.delete(id) : notifyOff.add(id);
+    updateLive();
+    const { error } = await sb.from("follows").update({ notify: turnOn }).eq("series_id", id);
+    if (error) {
+      turnOn ? notifyOff.add(id) : notifyOff.delete(id); updateLive();
+      toast("Action impossible : " + error.message + " (as-tu lancé schema_v3.sql ?)"); return;
+    }
+    toast(turnOn ? "Notifications activées pour cette œuvre" : "Notifications désactivées pour cette œuvre");
+    refreshNews();
+  }
+
+  /* Note personnelle */
+  function openRate() {
+    closeRate();
+    const wrap = document.createElement("div");
+    wrap.className = "mini"; wrap.id = "rate";
+    wrap.innerHTML = `<div class="mini-card" role="dialog" aria-modal="true" aria-label="Ta note">
+      <h3>Ta note</h3><p>${esc(cur.s.title)} — différente de la note des sites.</p>
+      <div class="stars">${[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => `<button data-rate="${i}" aria-label="${i} sur 10" aria-pressed="${cur.myRating != null && i <= cur.myRating}">${ICON.starFill}<span>${i}</span></button>`).join("")}</div>
+      <div class="mini-foot">${cur.myRating != null ? `<button class="btn secondary small" data-rate="clear">Retirer ma note</button>` : ""}<button class="btn secondary small" data-rate="close">Fermer</button></div></div>`;
+    document.body.appendChild(wrap);
+    wrap.querySelector("[data-rate]").focus();
+  }
+  function closeRate() { $("#rate")?.remove(); }
+  document.addEventListener("click", async (e) => {
+    const rate = $("#rate");
+    if (!rate) return;
+    if (e.target === rate) { closeRate(); return; }
+    const b = e.target.closest("#rate [data-rate]"); if (!b) return;
+    const v = b.dataset.rate;
+    if (v === "close") { closeRate(); return; }
+    cur.myRating = v === "clear" ? null : Number(v);
+    closeRate(); updateLive();
+    if (await saveUserSeries({ my_rating: cur?.myRating ?? null })) toast(v === "clear" ? "Note retirée" : `Note enregistrée : ${v}/10`);
+  });
+
+  /* Menu « Site » */
+  function closeSiteMenu() {
+    const m = $("#site-menu"); if (!m || m.hidden) return;
+    m.hidden = true; $("#site-btn")?.setAttribute("aria-expanded", "false");
   }
 
   async function openDetail(id) {
     lastFocus = lastFocus || document.activeElement;
     $("#detail").hidden = false; lockScroll();
-    $("#detail-panel").innerHTML = `<p class="empty-state" style="padding:80px 0">Chargement…</p>`;
-    const [a, b] = await Promise.all([
-      sb.from("series").select(DETAIL_COLS).eq("id", id).maybeSingle(),
+    $("#detail-panel").innerHTML = `<p class="empty-state" style="padding:90px 0">Chargement…</p>`;
+    const get = (cols) => sb.from("series").select(cols).eq("id", id).maybeSingle();
+    let [a, b, c] = await Promise.all([
+      get(DETAIL_FULL),
       sb.from("reading_history").select("chapter").eq("series_id", id),
+      sb.from("user_series").select("my_rating,site_id").eq("series_id", id).maybeSingle(),
     ]);
-    if (a.error || !a.data) { $("#detail-panel").innerHTML = `<p class="empty-state" style="padding:80px 0">Série introuvable.</p>`; return; }
-    cur = { s: a.data, siteId: pickSource(a.data)?.site_id, read: new Set((b.data || []).map((r) => Number(r.chapter))), order: "desc" };
+    if (a.error) a = await get(DETAIL_BASE);              // schema_v3.sql pas encore lancé : sans auteur/artiste
+    if ($("#detail").hidden) return;                       // fermée pendant le chargement
+    if (a.error || !a.data) { $("#detail-panel").innerHTML = `<p class="empty-state" style="padding:90px 0">Série introuvable.</p>`; return; }
+    const s = a.data, srcs = s.series_sources || [];
+    const byLatest = srcs.slice().sort((x, y) => (y.latest_chapter ?? -1) - (x.latest_chapter ?? -1));
+    const pick = srcs.find((x) => x.site_id === c.data?.site_id) || srcs.find((x) => x.site_id === settings.preferredSite) || byLatest[0];
+    cur = {
+      s, merged: mergedChapters(s), siteId: pick?.site_id, order: "desc", q: "",
+      read: new Set((b.data || []).map((r) => Number(r.chapter))), myRating: c.data?.my_rating ?? null,
+    };
     renderDetail();
-    $("#d-close").focus();
+    $(".d-close")?.focus();
     $("#detail-panel").scrollTop = 0;
   }
   function hideDetail() {
+    closeRate();
     if ($("#detail").hidden) return;
     $("#detail").hidden = true; cur = null; lockScroll();
     lastFocus?.focus?.(); lastFocus = null;
@@ -812,32 +1019,50 @@
   window.addEventListener("hashchange", route);
 
   $("#detail").addEventListener("click", (e) => {
-    if (e.target.id === "detail") { closeDetail(); return; }
-    const read = e.target.closest("[data-read]");
-    if (read) { markRead(Number(read.dataset.read)); return; }
-    if (e.target.closest("#d-follow")) { toggleFollow(cur.s.id); return; }
-    const site = e.target.closest("[data-site]");
-    if (site) { cur.siteId = site.dataset.site; renderDetail(); return; }
-    const genre = e.target.closest("[data-genre]");
+    const t = e.target;
+    if (t.id === "detail") { closeDetail(); return; }
+    if (!t.closest(".menu-wrap")) closeSiteMenu();
+    const read = t.closest("[data-read]");
+    if (read) { markRead(Number(read.dataset.read), read.dataset.site, read.href); return; }
+    const genre = t.closest("[data-genre]");
     if (genre) {
       state.filters.genres = [genre.dataset.genre]; state.filters.genreMode = "all";
       closeDetail(); showTab("search"); loadSearch(true); return;
     }
-    if (e.target.id === "d-more") { const d = $("#d-desc"); const open = d.classList.toggle("clamp"); e.target.textContent = open ? "Voir plus" : "Voir moins"; return; }
-    if (e.target.id === "ch-sort") { cur.order = cur.order === "desc" ? "asc" : "desc"; renderDetail(); return; }
-    if (e.target.id === "ch-go") jumpToChapter();
+    const el = t.closest("[data-act]"); if (!el || !cur) return;
+    switch (el.dataset.act) {
+      case "close": closeDetail(); break;
+      case "follow": toggleFollow(cur.s.id); break;
+      case "notif": toggleNotify(); break;
+      case "rate": openRate(); break;
+      case "more": {
+        const d = $("#d-desc"), open = d.classList.toggle("clamp") === false;
+        el.setAttribute("aria-expanded", open); el.querySelector("span").textContent = open ? "Voir moins" : "Voir plus"; break;
+      }
+      case "sort": cur.order = cur.order === "desc" ? "asc" : "desc"; el.innerHTML = sortLabel(); renderChapterList(); break;
+      case "site-menu": {
+        if (el.getAttribute("aria-disabled") === "true") { toast("Cette série n’est disponible que sur un site."); break; }
+        const menu = $("#site-menu"); menu.hidden = !menu.hidden; el.setAttribute("aria-expanded", !menu.hidden); break;
+      }
+      case "site-pick": {
+        const id = el.dataset.site;
+        if (id !== cur.siteId) { cur.siteId = id; saveUserSeries({ site_id: id }); renderDetail(); }
+        else closeSiteMenu();
+        break;
+      }
+    }
   });
-  $("#detail").addEventListener("auxclick", (e) => { const r = e.target.closest("[data-read]"); if (r && e.button === 1) markRead(Number(r.dataset.read)); });
-  $("#detail").addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.id === "ch-jump") jumpToChapter(); });
-
-  function jumpToChapter() {
-    const v = parseFloat($("#ch-jump").value);
-    const c = Number.isFinite(v) && cur.list.find((x) => x.n === v);
-    if (!c) { toast("Ce chapitre n’existe pas sur ce site."); return; }
-    window.open(c.url, settings.newTab ? "_blank" : "_self", "noopener");
-    markRead(c.n);
-    $(`.ch[data-n="${CSS.escape(String(c.n))}"]`)?.scrollIntoView?.({ block: "center" });
-  }
+  $("#detail").addEventListener("auxclick", (e) => { const r = e.target.closest("[data-read]"); if (r && e.button === 1) markRead(Number(r.dataset.read), r.dataset.site, r.href); });
+  $("#detail").addEventListener("input", (e) => { if (e.target.id === "ch-q" && cur) { cur.q = e.target.value; renderChapterList(); } });
+  $("#detail").addEventListener("keydown", (e) => {
+    if (e.key !== "Enter" || e.target.id !== "ch-q" || !cur) return;
+    const v = parseFloat(e.target.value.replace(",", "."));
+    const ch = Number.isFinite(v) && cur.merged.list.find((c) => c.n === v);
+    const r = ch && resolveLink(ch, cur.siteId, cur.merged.order);
+    if (!r) { toast("Ce chapitre n’existe pas."); return; }
+    window.open(r.url, settings.newTab ? "_blank" : "_self", "noopener");
+    markRead(ch.n, r.siteId, r.url);
+  });
 
   /* ---------- Historique ---------- */
   const H_PAGE = 40;
@@ -868,10 +1093,11 @@
 
   /* ---------- Notifications (cloche) ---------- */
   async function fetchEvents() {
-    if (!session || !follows.size) return [];
+    const ids = [...follows].filter((id) => !notifyOff.has(id));
+    if (!session || !ids.length) return [];
     const { data, error } = await sb.from("chapter_events")
       .select("id,chapter,chapter_url,created_at,site_id,series(id,title,cover_url)")
-      .in("series_id", [...follows]).order("created_at", { ascending: false }).limit(60);
+      .in("series_id", ids).order("created_at", { ascending: false }).limit(60);
     return error ? [] : data;
   }
   const isUnread = (ev) => Date.parse(ev.created_at) > settings.notifSeenAt;
@@ -1022,7 +1248,9 @@
   }
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (!$("#filters").hidden) closeFilters();
+    if ($("#rate")) closeRate();
+    else if ($("#site-menu") && !$("#site-menu").hidden) closeSiteMenu();
+    else if (!$("#filters").hidden) closeFilters();
     else if (!$("#detail").hidden) closeDetail();
     else closePop();
   });
@@ -1041,8 +1269,10 @@
     follows.clear(); newsCache = []; unreadSeries = new Set();
     if (!s) { hideDetail(); return; }
     await loadSettings();
-    const { data } = await sb.from("follows").select("series_id");
-    (data || []).forEach((r) => follows.add(r.series_id));
+    let fr = await sb.from("follows").select("series_id,notify");
+    if (fr.error) fr = await sb.from("follows").select("series_id");   // schema_v3.sql pas encore lancé
+    notifyOff.clear();
+    (fr.data || []).forEach((r) => { follows.add(r.series_id); if (r.notify === false) notifyOff.add(r.series_id); });
     state.searched = false;
     const tab = store.get("ms_tab");
     showTab(NAV.some((n) => n.id === tab) ? tab : "search");
