@@ -131,3 +131,9 @@ export const afterLabel = ($, re) => {
 
 // Fin du lien d'un chapitre par rapport à l'adresse de la série (pour gagner de la place en base)
 export const suffixOf = (url, seriesUrl) => (url.startsWith(seriesUrl) ? url.slice(seriesUrl.length) : url);
+
+// "Name , Other" -> "Name, Other" ; "-", "Unknown"... -> null
+export function cleanPerson(raw) {
+  const t = cleanText(raw).replace(/\s+,/g, ',');
+  return /^(-|—|–|n\/a|none|unknown|\?)?$/i.test(t) ? null : t;
+}

@@ -27,7 +27,7 @@ if (probe) {
       if (!d) { console.log('page introuvable'); continue; }
       console.log({
         type: d.type, statut: d.status, note: d.rating, genres: d.genres,
-        resume: d.description.slice(0, 140), nb_chapitres: d.chapters.length,
+        resume: d.description.slice(0, 140), auteur: d.author, artiste: d.artist, nb_chapitres: d.chapters.length,
         plus_recent: d.chapters[0], plus_ancien: d.chapters.at(-1),
       });
     } catch (e) { console.log('ERREUR : ' + e.message); }
@@ -73,7 +73,7 @@ async function saveDetails(row, d) {
   if (error) throw error;
 
   const { data: cur, error: e2 } = await sb.from('series')
-    .select('type,status,genres,description,rating').eq('id', row.series_id).single();
+    .select('type,status,genres,description,rating,author,artist').eq('id', row.series_id).single();
   if (e2) throw e2;
 
   const upd = {};
@@ -83,6 +83,8 @@ async function saveDetails(row, d) {
   if (genres.length !== (cur.genres || []).length) upd.genres = genres;
   if (d.description && (!cur.description || d.description.length > cur.description.length)) upd.description = d.description;
   if (d.rating != null) upd.rating = d.rating;
+  if (d.author && !cur.author) upd.author = d.author;
+  if (d.artist && !cur.artist) upd.artist = d.artist;
   if (Object.keys(upd).length) {
     const { error: e3 } = await sb.from('series').update(upd).eq('id', row.series_id);
     if (e3) throw e3;

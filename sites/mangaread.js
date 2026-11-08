@@ -2,7 +2,7 @@
 //   série   : /manga/<slug>/
 //   chapitre: /manga/<slug>/chapter-<n>/
 // plutôt que sur des classes CSS, qui changent souvent.
-import { cheerio, getHtml, postForm, sleep, chapterNum, cleanText, cleanGenres, normType, normStatus, afterLabel, suffixOf } from '../lib.js';
+import { cheerio, getHtml, postForm, sleep, chapterNum, cleanText, cleanGenres, normType, normStatus, afterLabel, suffixOf, cleanPerson } from '../lib.js';
 
 export const site = { id: 'mangaread', name: 'MangaRead', base: 'https://www.mangaread.org' };
 
@@ -140,7 +140,10 @@ export function parseDetails(html, seriesUrl) {
   });
   const chapters = [...map.entries()].sort((a, b) => b[0] - a[0]);
 
-  return { type, status, rating, genres, description, chapters };
+  const author = cleanPerson(afterLabel($, /^Authors?(\(s\))?$/i)?.text());
+  const artist = cleanPerson(afterLabel($, /^Artists?(\(s\))?$/i)?.text());
+
+  return { type, status, rating, genres, description, chapters, author, artist };
 }
 
 export async function fetchDetails(url) {

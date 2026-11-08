@@ -2,7 +2,7 @@
 //   série   : /comics/<slug>-<id>
 //   chapitre: /comics/<slug>-<id>/chapter/<n>
 // Le catalogue est sur /browse?page=N (affiche aussi le nombre de chapitres).
-import { cheerio, getHtml, sleep, textOf, cleanText, cleanGenres, normType, normStatus, afterLabel, labelHits, neighbor, suffixOf } from '../lib.js';
+import { cheerio, getHtml, sleep, textOf, cleanText, cleanGenres, normType, normStatus, afterLabel, labelHits, neighbor, suffixOf, cleanPerson } from '../lib.js';
 
 export const site = { id: 'asura', name: 'Asura Scans', base: 'https://asurascans.com' };
 
@@ -161,7 +161,10 @@ export function parseDetails(html, seriesUrl) {
   });
   const chapters = [...map.entries()].sort((a, b) => b[0] - a[0]);
 
-  return { type, status, rating: ratingOf($), genres, description: descriptionOf($), chapters };
+  const author = cleanPerson(afterLabel($, /^authors?$/i)?.text());
+  const artist = cleanPerson(afterLabel($, /^artists?$/i)?.text());
+
+  return { type, status, rating: ratingOf($), genres, description: descriptionOf($), chapters, author, artist };
 }
 
 export async function fetchDetails(url) {
