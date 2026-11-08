@@ -2,7 +2,7 @@
 //   série   : /manga/<slug>/
 //   chapitre: /manga/<slug>/chapter-<n>/
 // plutôt que sur des classes CSS, qui changent souvent.
-import { cheerio, getHtml, postForm, sleep, chapterNum } from '../lib.js';
+import { cheerio, getHtml, postForm, sleep, chapterNum, cleanText, cleanGenres, normType, normStatus, afterLabel, suffixOf } from '../lib.js';
 
 export const site = { id: 'mangaread', name: 'MangaRead', base: 'https://www.mangaread.org' };
 
@@ -107,4 +107,43 @@ export async function crawl({ full }) {
       chapterCount: null,
     };
   });
+}
+
+// ---------- Page d'une série : genres, type, statut, note, résumé, chapitres ----------
+export function parseDetails(html, seriesUrl) {
+  const $ = cheerio.load(html);
+  const slug = (new URL(seriesUrl).pathname.match(/^\/manga\/([^/]+)/) || [])[1];
+
+  const genreBox = afterLabel($, /^Genre\(s\)$/i);
+  const genreLinks = genreBox ? genreBox.find('a').addBack('a') : $('.genres-content a');
+  const genres = cleanGenres(genreLinks.map((_, a) => cleanText($(a).text())).get());
+  const type = normType(cleanText(afterLabel($, /^Type$/i)?.text()), genres);
+  const status = normStatus(cleanText(afterLabel($, /^Status$/i)?.text()), genres);
+
+  // Note : "Average 4.7 / 5" -> 9.4 sur 10
+  const r = $('body').text().match(/Average\s+(\d+(?:\.\d+)?)\s*\/\s*5/i);
+  const rating = r ? Math.round(parseFloat(r[1]) * 20) / 10 : null;
+
+  let description = cleanText($('.summary__content').first().text() || afterLabel($, /^Summary$/i)?.text());
+  description = description
+    .replace(/^A brief description of (?:the )?[^:]{1,160}:\s*/i, '')
+    .replace(/\s*Show (?:more|less)\s*$/i, '');
+
+  const map = new Map();
+  $('a[href*="/chapter-"]').each((_, el) => {
+    let u;
+    try { u = new URL($(el).attr('href'), seriesUrl); } catch { return; }
+    const m = u.pathname.match(/^\/manga\/([^/]+)\/chapter-([^/]+)\/?$/);
+    if (!m || m[1] !== slug) return;
+    const n = chapterNum(m[2]);
+    if (n != null && !map.has(n)) map.set(n, suffixOf(u.href, seriesUrl));
+  });
+  const chapters = [...map.entries()].sort((a, b) => b[0] - a[0]);
+
+  return { type, status, rating, genres, description, chapters };
+}
+
+export async function fetchDetails(url) {
+  const html = await getHtml(url);
+  return html ? parseDetails(html, url) : null;
 }

@@ -2,7 +2,7 @@
 //   série   : /comics/<slug>-<id>
 //   chapitre: /comics/<slug>-<id>/chapter/<n>
 // Le catalogue est sur /browse?page=N (affiche aussi le nombre de chapitres).
-import { cheerio, getHtml, sleep, textOf } from '../lib.js';
+import { cheerio, getHtml, sleep, textOf, cleanText, cleanGenres, normType, normStatus, afterLabel, labelHits, neighbor, suffixOf } from '../lib.js';
 
 export const site = { id: 'asura', name: 'Asura Scans', base: 'https://asurascans.com' };
 
@@ -118,4 +118,53 @@ export async function crawl({ full, known }) {
     });
   }
   return out;
+}
+
+// ---------- Page d'une série : genres, type, statut, note, résumé, chapitres ----------
+function descriptionOf($) {
+  let best = '';
+  $('p, div, span').each((_, el) => {
+    const $el = $(el);
+    if (el.name !== 'p' && $el.children().length) return;     // on ne garde que les blocs de texte "simples"
+    const t = cleanText($el.text());
+    if (t.length > 60 && (t.match(/ • /g) || []).length < 2 && t.length > best.length) best = t;
+  });
+  if (!best) best = cleanText($('meta[name="description"]').attr('content') || $('meta[property="og:description"]').attr('content'));
+  return best.replace(/\s*Show more\s*$/i, '').replace(/\s*Show less\s*$/i, '');
+}
+
+function ratingOf($) {
+  for (const hit of labelHits($, /^rating$/i)) {
+    for (const dir of ['next', 'prev']) {
+      const t = cleanText(neighbor(hit, dir)?.text());
+      if (/^\d+(\.\d+)?$/.test(t) && parseFloat(t) <= 10) return parseFloat(t);
+    }
+  }
+  return null;
+}
+
+export function parseDetails(html, seriesUrl) {
+  const $ = cheerio.load(html);
+  const genres = cleanGenres($('a[href*="browse?genres="]').map((_, a) => cleanText($(a).text())).get());
+  const type = normType(cleanText(afterLabel($, /^type$/i)?.text()), genres);
+  const status = normStatus(cleanText(afterLabel($, /^status$/i)?.text()), genres);
+
+  const base = (new URL(seriesUrl).pathname.match(/^\/comics\/([^/]+)/) || [])[1]?.replace(/-[0-9a-f]{8}$/, '');
+  const map = new Map();
+  $('a[href*="/chapter/"]').each((_, el) => {
+    let u;
+    try { u = new URL($(el).attr('href'), seriesUrl); } catch { return; }
+    const m = u.pathname.match(/^\/comics\/([^/]+)\/chapter\/(\d+(?:\.\d+)?)\/?$/);
+    if (!m || m[1].replace(/-[0-9a-f]{8}$/, '') !== base) return;
+    const n = parseFloat(m[2]);
+    if (!map.has(n)) map.set(n, suffixOf(u.href, seriesUrl));
+  });
+  const chapters = [...map.entries()].sort((a, b) => b[0] - a[0]);
+
+  return { type, status, rating: ratingOf($), genres, description: descriptionOf($), chapters };
+}
+
+export async function fetchDetails(url) {
+  const html = await getHtml(url);
+  return html ? parseDetails(html, url) : null;
 }
