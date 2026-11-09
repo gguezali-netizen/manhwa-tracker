@@ -172,8 +172,6 @@
   .actions-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .actions-row .btn { width: 100%; padding: 12px 8px; }
   .follow-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-  .resume { align-self: flex-start; font-weight: 700; color: var(--accent); text-decoration: none; margin: -4px 0 0 4px; }
-  .resume:hover { text-decoration: underline; }
 
   .ch-top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; padding: 16px 18px 10px; }
   .ch-top h3 { margin: 0; font-size: 1.05rem; }
@@ -213,15 +211,53 @@
   .mini-foot { display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px; }
 
   /* ---------- Historique ---------- */
-  .day { margin: 22px 0 8px; font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: capitalize; }
-  .hrow { display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 10px; margin-bottom: 8px; border-radius: 14px;
-    background: var(--surface); border: 1px solid var(--line); text-decoration: none; }
+  .head-actions { display: flex; gap: 8px; }
+  .day { display: flex; align-items: center; justify-content: space-between; margin: 22px 0 8px; font-size: .85rem; font-weight: 700; color: var(--muted); text-transform: capitalize; }
+  .link-sm { display: none; background: none; border: 0; color: var(--accent); font-weight: 700; font-size: .82rem; text-transform: none; }
+  .sel-mode .day .link-sm { display: inline; }
+  .selbar { position: sticky; top: calc(var(--appbar-h) + 8px); z-index: 20; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 10px 12px; margin-bottom: 8px;
+    background: var(--surface); border: 1.5px solid var(--accent); border-radius: 14px; box-shadow: var(--shadow); }
+  .selbar #h-count { font-weight: 700; flex: 1; min-width: 140px; }
+  .sel-actions { display: flex; gap: 8px; }
+  .selbar .btn.danger:not(:disabled) { background: var(--danger); color: #fff; }
+  .btn:disabled { opacity: .5; pointer-events: none; }
+
+  .hwrap { position: relative; border-radius: 14px; margin-bottom: 8px; overflow: hidden; }
+  .hrow { position: relative; z-index: 1; display: grid; grid-template-columns: 48px 1fr auto; gap: 14px; align-items: center; padding: 10px; border-radius: 14px;
+    background: var(--surface); border: 1px solid var(--line); text-decoration: none; touch-action: pan-y;
+    transition: transform .22s ease, border-color .15s, background .15s; }
   .hrow:hover { border-color: var(--accent); }
   .hrow .cover-wrap { width: 48px; border-radius: 8px; box-shadow: none; }
   .hrow .cover-wrap::after { display: none; }
   .hrow .cover.empty { font-size: 1.2rem; }
   .h-title { font-weight: 700; }
   .h-sub, .hrow time { color: var(--muted); font-size: .85rem; }
+  .sel-mode .hrow { grid-template-columns: 26px 48px 1fr auto; cursor: pointer; }
+  .hcheck { display: none; width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: var(--surface); place-items: center; color: transparent; }
+  .hcheck svg { width: 14px; height: 14px; stroke-width: 3; }
+  .sel-mode .hcheck { display: grid; }
+  .hwrap.selected .hrow { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, var(--surface)); }
+  .hwrap.selected .hcheck { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  /* Téléphone : action rouge révélée en glissant vers la gauche */
+  .hdel { display: none; position: absolute; top: 0; right: 0; bottom: 0; width: 104px; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+    border: 0; background: var(--danger); color: #fff; font-weight: 700; font-size: .82rem; }
+  .hdel svg { width: 22px; height: 22px; }
+  .hwrap.swiping .hdel, .hwrap.open .hdel { display: flex; }
+  /* Ordinateur : corbeille au survol */
+  .htrash { display: none; position: absolute; z-index: 2; right: 12px; top: 50%; width: 36px; height: 36px; margin-top: -18px; border-radius: 50%;
+    border: 1px solid var(--line); background: var(--surface); color: var(--danger); place-items: center; opacity: 0; }
+  .htrash svg { width: 18px; height: 18px; }
+  @media (hover: hover) and (pointer: fine) {
+    .htrash { display: grid; }
+    .hwrap:hover .htrash, .htrash:focus-visible { opacity: 1; }
+    .hwrap:hover time { opacity: 0; }
+    .sel-mode .htrash { display: none; }
+  }
+  .toast { display: flex; align-items: center; gap: 14px; }
+  .toast-btn { background: none; border: 0; color: inherit; font-weight: 800; text-decoration: underline; padding: 0; }
+  .resume-btn { width: 100%; padding: 13px 10px; }
+  .resume-btn svg { width: 18px; height: 18px; }
+  .resume-btn small { font-weight: 600; opacity: .85; }
 
   /* ---------- Paramètres ---------- */
   .settings { max-width: 680px; margin: 0 auto; }
@@ -241,6 +277,19 @@
   .swatch[aria-pressed="true"] { box-shadow: 0 0 0 2.5px var(--ink); }
 
   /* ---------- Notifications ---------- */
+  .refresh-btn { display: none; }
+  .refresh-btn.spin svg { animation: spin .4s linear; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  html.calm *, html.calm *::before, html.calm *::after { transition: none !important; animation: none !important; }
+  .cover.nsfw { filter: blur(16px) saturate(.85); transform: scale(1.2); }
+  .card:hover .cover.nsfw { transform: scale(1.2); }
+  .badge18 { position: absolute; z-index: 2; inset: 0; margin: auto; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+    background: rgba(15,10,25,.72); color: #fff; font-weight: 800; font-size: .92rem; backdrop-filter: blur(4px); }
+  .d-cover { position: relative; }
+  .d-cover.revealed .cover.nsfw { filter: none; transform: none; }
+  .reveal-btn { position: absolute; z-index: 2; left: 50%; bottom: 14px; transform: translateX(-50%); padding: 8px 18px; border-radius: 999px; border: 0;
+    background: rgba(15,10,25,.78); color: #fff; font-weight: 700; backdrop-filter: blur(4px); }
+  .row .chips { justify-content: flex-end; }
   .bell-wrap { position: relative; }
   .popover { position: absolute; right: 0; top: calc(100% + 10px); z-index: 70; width: min(400px, 92vw); max-height: 72vh; display: flex; flex-direction: column;
     background: var(--surface); border: 1px solid var(--line); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; }
@@ -266,6 +315,7 @@
   /* ---------- Téléphone ---------- */
   @media (max-width: 760px) {
     .appbar { grid-template-columns: 1fr auto; padding: 0 16px; }
+    .refresh-btn { display: grid; }
     .appbar .nav { display: none; }
     .tabbar { display: grid; }
     main { padding: 20px 16px calc(92px + env(safe-area-inset-bottom)); }
@@ -317,6 +367,7 @@
     <div class="brand"><span class="logo" id="brand-logo"></span><span>Manhwa</span></div>
     <nav class="nav" id="nav-top" aria-label="Navigation principale"></nav>
     <div class="actions">
+      <button class="icon-btn refresh-btn" id="btn-refresh" aria-label="Actualiser la page" title="Actualiser la page"></button>
       <div class="bell-wrap">
         <button class="icon-btn" id="btn-bell" aria-label="Notifications" aria-haspopup="true" aria-expanded="false"></button>
         <div class="popover" id="pop" hidden role="dialog" aria-label="Notifications">
@@ -351,7 +402,13 @@
 
     <!-- Historique -->
     <section id="view-history" data-view="history" hidden>
-      <div class="view-head"><div><h2>Historique</h2><div class="sub">Les chapitres que tu as ouverts depuis ce site</div></div></div>
+      <div class="view-head"><div><h2>Historique</h2><div class="sub">Les chapitres que tu as ouverts depuis ce site</div></div>
+        <div class="head-actions"><button class="btn secondary small" id="h-select" hidden>Sélectionner</button></div></div>
+      <div class="selbar" id="h-bar" hidden>
+        <button class="btn secondary small" id="h-cancel">Annuler</button>
+        <span id="h-count">Choisis ce que tu veux supprimer</span>
+        <div class="sel-actions"><button class="btn secondary small" id="h-all">Tout sélectionner</button><button class="btn danger small" id="h-delete" disabled>Supprimer</button></div>
+      </div>
       <div id="history-list"></div>
       <button class="btn secondary more" id="history-more" hidden>Charger plus</button>
     </section>
@@ -420,9 +477,15 @@
     return d.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" });
   }
   let toastTimer;
-  function toast(msg) {
-    const el = $("#toast"); el.textContent = msg; el.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  function toast(msg, action) {
+    const el = $("#toast"); el.textContent = msg;
+    if (action) {
+      const b = document.createElement("button"); b.className = "toast-btn"; b.textContent = action.label;
+      b.addEventListener("click", () => { el.hidden = true; action.fn(); });
+      el.appendChild(b);
+    }
+    el.hidden = false; clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { el.hidden = true; }, action ? 6000 : 3200);
   }
 
   const I = (inner, cls = "") => `<svg class="i ${cls}" viewBox="0 0 24 24" aria-hidden="true">${inner}</svg>`;
@@ -443,6 +506,9 @@
     chevron: I('<path d="M6 9l6 6 6-6"/>'),
     sort: I('<path d="M8 6v12M8 18l-3-3M8 18l3-3M16 18V6M16 6l-3 3M16 6l3 3"/>'),
     book: I('<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>'),
+    trash: I('<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/>'),
+    check: I('<path d="M5 12l5 5 9-10"/>'),
+    refresh: I('<path d="M20 11a8 8 0 1 0-2.4 5.7"/><path d="M20 4v7h-7"/>'),
     logo: I('<rect x="4" y="3" width="7" height="18" rx="2"/><rect x="13" y="3" width="7" height="11" rx="2"/>'),
   };
   const NAV = [
@@ -469,7 +535,13 @@
   };
 
   /* ---------- Réglages (gardés ici ET dans Supabase) ---------- */
-  const DEFAULTS = { theme: "auto", accent: "violet", cardSize: "normal", newTab: true, preferredSite: "", hiddenSites: [], defaultSort: "updated", browserNotif: false, notifSeenAt: 0 };
+  const ADULT_DEFAULT = ["Adult", "Mature", "Smut", "Hentai", "Erotica"];
+  const DEFAULTS = {
+    theme: "auto", accent: "violet", cardSize: "normal", newTab: true, preferredSite: "", hiddenSites: [], defaultSort: "updated",
+    browserNotif: false, notifSeenAt: 0,
+    blurAdult: false, blurGenres: [...ADULT_DEFAULT],     // flouter les œuvres pour adultes
+    startTab: "last", chapterOrder: "desc", saveHistory: true, refreshMinutes: 5, reduceMotion: false,
+  };
   let settings = { ...DEFAULTS };
   try { settings = { ...DEFAULTS, ...JSON.parse(store.get("ms_settings") || "{}") }; } catch { /* ignore */ }
   const ACCENTS = { violet: ["#6c4bf5", "#9a82ff"], rose: ["#d92a73", "#ff6aa3"], teal: ["#0b8473", "#3fd3bd"], orange: ["#c2410c", "#ff9248"], blue: ["#2563eb", "#6ea0ff"] };
@@ -480,6 +552,7 @@
     const mode = settings.theme === "auto" ? (dark.matches ? "dark" : "light") : settings.theme;
     const root = document.documentElement;
     root.dataset.theme = mode;
+    root.classList.toggle("calm", !!settings.reduceMotion);
     const [l, d] = ACCENTS[settings.accent] || ACCENTS.violet;
     root.style.setProperty("--accent", mode === "dark" ? d : l);
     root.style.setProperty("--on-accent", mode === "dark" ? "#140f20" : "#ffffff");
@@ -528,11 +601,17 @@
   function coverOf(s) {
     return safeUrl(s.cover_url) || safeUrl((s.series_sources || []).find((x) => x.cover_url)?.cover_url);
   }
+  // Œuvre "pour adultes" = au moins un des genres choisis dans les paramètres
+  const isAdult = (s) => {
+    if (!settings.blurAdult) return false;
+    const set = new Set((settings.blurGenres || []).map((g) => g.toLowerCase()));
+    return (s.genres || []).some((g) => set.has(String(g).toLowerCase()));
+  };
   function coverHtml(s) {
     const c = coverOf(s);
     const letter = esc((s.title || "?").trim().charAt(0).toUpperCase());
     return c
-      ? `<img class="cover" src="${esc(c)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-letter="${letter}">`
+      ? `<img class="cover${isAdult(s) ? " nsfw" : ""}" src="${esc(c)}" alt="" loading="lazy" referrerpolicy="no-referrer" data-letter="${letter}">`
       : `<div class="cover empty" aria-hidden="true">${letter}</div>`;
   }
   document.addEventListener("error", (e) => {
@@ -550,7 +629,7 @@
     const names = [...new Set(srcs.map((x) => siteName(x.site_id)))].join(" · ");
     const tag = unreadSeries.has(s.id) ? `<span class="tag new">Nouveau</span>` : s.type ? `<span class="tag">${esc(typeLabel(s.type))}</span>` : "";
     return `<a class="card" href="#serie-${esc(s.id)}" data-id="${esc(s.id)}">
-      <div class="cover-wrap">${coverHtml(s)}${tag}
+      <div class="cover-wrap">${coverHtml(s)}${isAdult(s) ? `<span class="badge18" aria-label="Contenu pour adultes">18+</span>` : ""}${tag}
         ${follows.has(s.id) ? `<span class="mark" title="Suivi">${ICON.bookmarkFill}</span>` : ""}
         ${best >= 0 ? `<span class="chap">Ch. ${fmt(best)}</span>` : ""}
       </div>
@@ -572,6 +651,8 @@
     const bottom = NAV.map((n) => `<button data-tab="${n.id}">${n.icon}<span>${n.label}</span></button>`).join("");
     $("#nav-top").innerHTML = top; $("#nav-bottom").innerHTML = bottom;
     ["#brand-logo", "#login-logo"].forEach((s) => { $(s).innerHTML = ICON.logo; });
+    $("#btn-refresh").innerHTML = ICON.refresh;
+    $("#btn-refresh").addEventListener("click", () => { $("#btn-refresh").classList.add("spin"); setTimeout(() => location.reload(), 380); });
     $("#btn-bell").innerHTML = ICON.bell + `<span class="dot" id="bell-badge" hidden>0</span>`;
     $("#ic-search").innerHTML = ICON.search; $("#ic-search2").innerHTML = ICON.search; $("#ic-filter").innerHTML = ICON.filter;
     $("#filters-close").innerHTML = ICON.close;
@@ -583,6 +664,7 @@
 
   function showTab(t) {
     state.tab = t;
+    if (t !== "history") exitSelect();
     store.set("ms_tab", t);
     $$("[data-tab]").forEach((b) => (b.dataset.tab === t ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current")));
     $$("[data-view]").forEach((v) => { v.hidden = v.dataset.view !== t; });
@@ -595,7 +677,7 @@
   }
 
   /* ---------- Recherche ---------- */
-  const SERIES_COLS = "id,title,cover_url,type,status,rating,updated_at";
+  const SERIES_COLS = "id,title,cover_url,type,status,rating,updated_at,genres";
   const SRC_LIGHT = "site_id,url,cover_url,latest_chapter,latest_chapter_url";
 
   function visibleSiteIds() {
@@ -754,8 +836,8 @@
 
   /* ---------- Fiche d'une série ---------- */
   let cur = null;      // { s, merged, siteId, read:Set, order, q, myRating }
-  const DETAIL_BASE = `${SERIES_COLS},genres,description,series_sources(id,site_id,url,cover_url,latest_chapter,latest_chapter_url,chapter_count,chapters)`;
-  const DETAIL_FULL = DETAIL_BASE.replace(",genres,", ",author,artist,genres,");
+  const DETAIL_BASE = `${SERIES_COLS},description,series_sources(id,site_id,url,cover_url,latest_chapter,latest_chapter_url,chapter_count,chapters)`;
+  const DETAIL_FULL = DETAIL_BASE.replace(",description,", ",author,artist,description,");
   let hadDetailAtLoad = /^#serie-/.test(location.hash);
   let usWarned = false;
 
@@ -842,7 +924,10 @@
 
     const resumeHtml = resumeCh ? (() => {
       const r = resolveLink(resumeCh, cur.siteId, m.order);
-      return r ? `<a class="resume" href="${esc(safeUrl(r.url))}" ${linkAttrs()} data-read="${resumeCh.n}" data-site="${esc(r.siteId)}">Reprendre au chapitre ${fmt(resumeCh.n)} ›</a>` : "";
+      if (!r) return "";
+      const upToDate = !list.some((c) => c.n > lastRead);
+      const via = r.siteId !== cur.siteId ? ` <small>· via ${esc(siteName(r.siteId))}</small>` : "";
+      return `<a class="btn resume-btn ${upToDate ? "secondary" : ""}" href="${esc(safeUrl(r.url))}" ${linkAttrs()} data-read="${resumeCh.n}" data-site="${esc(r.siteId)}">${ICON.play}<span>${upToDate ? `À jour · relire le chapitre ${fmt(resumeCh.n)}` : `Reprendre au chapitre ${fmt(resumeCh.n)}`}${via}</span></a>`;
     })() : "";
 
     const multi = (s.series_sources || []).length > 1;
@@ -862,7 +947,7 @@
       <button class="icon-btn d-close" data-act="close" aria-label="Fermer">${ICON.close}</button>
       <div class="d-grid">
         <div class="d-left">
-          <div class="d-cover">${coverHtml(s)}</div>
+          <div class="d-cover">${coverHtml(s)}${isAdult(s) ? `<button class="reveal-btn" data-act="reveal">Afficher</button>` : ""}</div>
           <div class="desk-only">${rateBtn("wide")}</div>
           <div class="statcard desk-only">${ratingRow}${detailsCard}</div>
         </div>
@@ -923,7 +1008,7 @@
   }
 
   async function markRead(n, siteId, url) {
-    if (!session || !cur) return;
+    if (!session || !cur || !settings.saveHistory) return;
     const seriesId = cur.s.id;
     if (!cur.read.has(n)) { cur.read.add(n); $(`#ch-list .chrow[data-n="${CSS.escape(String(n))}"]`)?.classList.add("read"); }
     await sb.from("reading_history").upsert({
@@ -994,7 +1079,7 @@
     const byLatest = srcs.slice().sort((x, y) => (y.latest_chapter ?? -1) - (x.latest_chapter ?? -1));
     const pick = srcs.find((x) => x.site_id === c.data?.site_id) || srcs.find((x) => x.site_id === settings.preferredSite) || byLatest[0];
     cur = {
-      s, merged: mergedChapters(s), siteId: pick?.site_id, order: "desc", q: "",
+      s, merged: mergedChapters(s), siteId: pick?.site_id, order: settings.chapterOrder === "asc" ? "asc" : "desc", q: "",
       read: new Set((b.data || []).map((r) => Number(r.chapter))), myRating: c.data?.my_rating ?? null,
     };
     renderDetail();
@@ -1032,6 +1117,7 @@
     const el = t.closest("[data-act]"); if (!el || !cur) return;
     switch (el.dataset.act) {
       case "close": closeDetail(); break;
+      case "reveal": { const on = el.closest(".d-cover").classList.toggle("revealed"); el.textContent = on ? "Masquer" : "Afficher"; break; }
       case "follow": toggleFollow(cur.s.id); break;
       case "notif": toggleNotify(); break;
       case "rate": openRate(); break;
@@ -1066,37 +1152,186 @@
 
   /* ---------- Historique ---------- */
   const H_PAGE = 40;
-  let hOffset = 0, hLastDay = "";
-  async function loadHistory(reset) {
-    const box = $("#history-list");
-    if (reset) { hOffset = 0; hLastDay = ""; box.innerHTML = ""; }
-    const { data, error } = await sb.from("reading_history")
-      .select("series_id,chapter,site_id,chapter_url,read_at,series(id,title,cover_url)")
-      .order("read_at", { ascending: false }).range(hOffset, hOffset + H_PAGE - 1);
-    if (error) { box.innerHTML = `<p class="empty-state">Chargement impossible : ${esc(error.message)}</p>`; return; }
-    let html = "";
-    for (const r of data) {
-      const day = dayLabel(r.read_at);
-      if (day !== hLastDay) { html += `<div class="day">${esc(day)}</div>`; hLastDay = day; }
-      const s = r.series || { id: r.series_id, title: "Série supprimée" };
-      html += `<a class="hrow" href="#serie-${esc(s.id)}">
+  let hOffset = 0;
+  let histSelecting = false;
+  const histSel = new Set();
+  const histRows = new Map();          // "série|chapitre" -> ligne complète (pour pouvoir annuler)
+  let suppressClickUntil = 0;
+  const hKey = (r) => `${r.series_id}|${r.chapter}`;
+
+  function rowHtml(r, day) {
+    const s = r.series || { id: r.series_id, title: "Série supprimée" };
+    return `<div class="hwrap" data-key="${esc(hKey(r))}" data-day="${esc(day)}">
+      <button class="hdel" data-act="h-del" tabindex="-1" aria-label="Supprimer de l’historique">${ICON.trash}<span>Supprimer</span></button>
+      <a class="hrow" href="#serie-${esc(s.id)}">
+        <span class="hcheck">${ICON.check}</span>
         <div class="cover-wrap">${coverHtml(s)}</div>
         <div><div class="h-title">${esc(s.title)}</div><div class="h-sub">Chapitre ${fmt(r.chapter)}${r.site_id ? " · " + esc(siteName(r.site_id)) : ""}</div></div>
-        <time datetime="${esc(r.read_at)}">${esc(new Date(r.read_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }))}</time></a>`;
+        <time datetime="${esc(r.read_at)}">${esc(new Date(r.read_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }))}</time>
+      </a>
+      <button class="htrash" data-act="h-del" aria-label="Retirer de l’historique" title="Retirer de l’historique">${ICON.trash}</button>
+    </div>`;
+  }
+
+  async function loadHistory(reset) {
+    const box = $("#history-list");
+    if (reset) { exitSelect(); hOffset = 0; box.innerHTML = ""; histRows.clear(); }
+    const { data, error } = await sb.from("reading_history")
+      .select("series_id,chapter,site_id,chapter_url,read_at,series(id,title,cover_url,genres)")
+      .order("read_at", { ascending: false }).range(hOffset, hOffset + H_PAGE - 1);
+    if (error) { box.innerHTML = `<p class="empty-state">Chargement impossible : ${esc(error.message)}</p>`; return; }
+    let html = "", lastDay = [...box.querySelectorAll(".day")].pop()?.dataset.day;
+    for (const r of data) {
+      histRows.set(hKey(r), r);
+      const day = dayLabel(r.read_at);
+      if (day !== lastDay) { html += `<div class="day" data-day="${esc(day)}"><span>${esc(day)}</span><button class="link-sm" data-act="h-day">Tout sélectionner</button></div>`; lastDay = day; }
+      html += rowHtml(r, day);
     }
     box.insertAdjacentHTML("beforeend", html);
     hOffset += data.length;
     $("#history-more").hidden = data.length < H_PAGE;
-    if (!hOffset) box.innerHTML = `<p class="empty-state">Rien pour l’instant. Les chapitres que tu ouvres depuis une fiche s’affichent ici.</p>`;
+    historyEmptyCheck();
   }
   $("#history-more").addEventListener("click", () => loadHistory(false));
+
+  function historyEmptyCheck() {
+    const box = $("#history-list"), has = !!box.querySelector(".hwrap");
+    if (!has) {
+      box.innerHTML = `<p class="empty-state">Rien pour l’instant. Les chapitres que tu ouvres depuis une fiche s’affichent ici.</p>`;
+      $("#history-more").hidden = true; exitSelect();
+    }
+    $("#h-select").hidden = !has || histSelecting;
+  }
+  function pruneDays() {
+    $$("#history-list .day").forEach((d) => { const n = d.nextElementSibling; if (!n || n.classList.contains("day")) d.remove(); });
+  }
+
+  /* Suppression : retire la ligne ET la coche "lu" du chapitre (même enregistrement) */
+  async function deleteHistory(keys) {
+    const items = keys.map((k) => histRows.get(k)).filter(Boolean);
+    if (!items.length) return;
+    const box = $("#history-list");
+    items.forEach((it) => {
+      const k = hKey(it);
+      $$(".hwrap", box).find((w) => w.dataset.key === k)?.remove();
+      histRows.delete(k); histSel.delete(k);
+    });
+    pruneDays();
+    hOffset = Math.max(0, hOffset - items.length);
+    if (!box.querySelector(".hwrap") && !$("#history-more").hidden) loadHistory(false); else historyEmptyCheck();
+    updateSelUi();
+
+    const bySeries = new Map();
+    items.forEach((it) => bySeries.set(it.series_id, [...(bySeries.get(it.series_id) || []), it.chapter]));
+    const res = await Promise.all([...bySeries].map(([sid, chs]) => sb.from("reading_history").delete().eq("series_id", sid).in("chapter", chs)));
+    const bad = res.find((r) => r.error);
+    if (bad) { toast("Suppression impossible : " + bad.error.message); loadHistory(true); return; }
+    toast(items.length === 1 ? "Retiré de l’historique" : `${items.length} éléments retirés`, { label: "Annuler", fn: () => restoreHistory(items) });
+  }
+  async function restoreHistory(items) {
+    const { error } = await sb.from("reading_history").upsert(items.map((it) => ({
+      user_id: session.user.id, series_id: it.series_id, chapter: it.chapter, site_id: it.site_id, chapter_url: it.chapter_url, read_at: it.read_at,
+    })));
+    toast(error ? "Impossible de rétablir : " + error.message : "Rétabli");
+    loadHistory(true);
+  }
+
+  /* Mode sélection (ordinateur, mais aussi disponible sur téléphone) */
+  function enterSelect() { histSelecting = true; histSel.clear(); updateSelUi(); }
+  function exitSelect() { if (!histSelecting) return; histSelecting = false; histSel.clear(); updateSelUi(); }
+  function updateSelUi() {
+    const box = $("#history-list"), wraps = $$(".hwrap", box), n = histSel.size;
+    box.classList.toggle("sel-mode", histSelecting);
+    $("#h-bar").hidden = !histSelecting;
+    $("#h-select").hidden = histSelecting || !wraps.length;
+    wraps.forEach((w) => w.classList.toggle("selected", histSel.has(w.dataset.key)));
+    $("#h-count").textContent = n ? `${n} sélectionné${n > 1 ? "s" : ""}` : "Choisis ce que tu veux supprimer";
+    $("#h-delete").disabled = !n; $("#h-delete").textContent = n ? `Supprimer (${n})` : "Supprimer";
+    $("#h-all").textContent = n && n === wraps.length ? "Tout désélectionner" : "Tout sélectionner";
+  }
+  const toggleSel = (k) => { histSel.has(k) ? histSel.delete(k) : histSel.add(k); updateSelUi(); };
+  $("#h-select").addEventListener("click", enterSelect);
+  $("#h-cancel").addEventListener("click", exitSelect);
+  $("#h-all").addEventListener("click", () => {
+    const keys = $$("#history-list .hwrap").map((w) => w.dataset.key);
+    if (histSel.size === keys.length) histSel.clear(); else keys.forEach((k) => histSel.add(k));
+    updateSelUi();
+  });
+  $("#h-delete").addEventListener("click", () => { const keys = [...histSel]; exitSelect(); deleteHistory(keys); });
+
+  /* Téléphone : glisser une ligne vers la gauche (comme dans Mail) */
+  const SWIPE_OPEN = 104;
+  let sw = null;
+  function closeSwipe(wrap) {
+    const row = wrap.querySelector(".hrow");
+    row.style.transition = ""; row.style.transform = "";
+    wrap.classList.remove("open", "swiping");
+  }
+  const closeAllSwipes = (except) => $$("#history-list .hwrap.open, #history-list .hwrap.swiping").forEach((w) => { if (w !== except) closeSwipe(w); });
+
+  const hist = $("#history-list");
+  hist.addEventListener("pointerdown", (e) => {
+    if (e.pointerType !== "touch" || histSelecting) return;
+    const row = e.target.closest(".hrow"); if (!row) return;
+    const wrap = row.parentElement;
+    closeAllSwipes(wrap);
+    sw = { row, wrap, x0: e.clientX, y0: e.clientY, dx: 0, locked: false, base: wrap.classList.contains("open") ? -SWIPE_OPEN : 0, id: e.pointerId };
+  });
+  hist.addEventListener("pointermove", (e) => {
+    if (!sw || e.pointerId !== sw.id) return;
+    const dx = e.clientX - sw.x0, dy = e.clientY - sw.y0;
+    if (!sw.locked) {
+      if (Math.abs(dx) < 8 && Math.abs(dy) < 8) return;
+      if (Math.abs(dy) > Math.abs(dx)) { sw = null; return; }      // c'est un défilement vertical
+      sw.locked = true; sw.wrap.classList.add("swiping"); sw.row.style.transition = "none";
+      try { sw.row.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+    }
+    const W = sw.wrap.offsetWidth || 360;
+    sw.dx = Math.min(0, Math.max(-W, sw.base + dx));
+    sw.row.style.transform = `translateX(${sw.dx}px)`;
+  });
+  function endSwipe(e) {
+    if (!sw || e.pointerId !== sw.id) return;
+    const s = sw; sw = null;
+    if (!s.locked) return;
+    suppressClickUntil = Date.now() + 350;                          // pas de clic fantôme après un glissement
+    const W = s.wrap.offsetWidth || 360;
+    s.row.style.transition = "";
+    if (e.type !== "pointercancel" && s.dx <= -W * 0.55) {         // glissement complet = supprimer
+      s.row.style.transform = `translateX(-${W}px)`;
+      const key = s.wrap.dataset.key;
+      setTimeout(() => deleteHistory([key]), 180);
+    } else if (e.type !== "pointercancel" && s.dx <= -SWIPE_OPEN / 2) {   // à moitié = montrer le bouton "Supprimer"
+      s.row.style.transform = `translateX(-${SWIPE_OPEN}px)`; s.wrap.classList.add("open");
+    } else closeSwipe(s.wrap);
+  }
+  hist.addEventListener("pointerup", endSwipe);
+  hist.addEventListener("pointercancel", endSwipe);
+  document.addEventListener("pointerdown", (e) => { if (!e.target.closest?.(".hwrap")) closeAllSwipes(); });
+
+  hist.addEventListener("click", (e) => {
+    if (Date.now() < suppressClickUntil) { e.preventDefault(); return; }
+    const del = e.target.closest('[data-act="h-del"]');
+    if (del) { e.preventDefault(); deleteHistory([del.closest(".hwrap").dataset.key]); return; }
+    const dayBtn = e.target.closest('[data-act="h-day"]');
+    if (dayBtn) {
+      const day = dayBtn.closest(".day").dataset.day;
+      const keys = $$(".hwrap", hist).filter((w) => w.dataset.day === day).map((w) => w.dataset.key);
+      const all = keys.every((k) => histSel.has(k));
+      keys.forEach((k) => (all ? histSel.delete(k) : histSel.add(k)));
+      updateSelUi(); return;
+    }
+    const wrap = e.target.closest(".hwrap"); if (!wrap) return;
+    if (histSelecting) { e.preventDefault(); toggleSel(wrap.dataset.key); return; }
+    if (wrap.classList.contains("open")) { e.preventDefault(); closeSwipe(wrap); }
+  });
 
   /* ---------- Notifications (cloche) ---------- */
   async function fetchEvents() {
     const ids = [...follows].filter((id) => !notifyOff.has(id));
     if (!session || !ids.length) return [];
     const { data, error } = await sb.from("chapter_events")
-      .select("id,chapter,chapter_url,created_at,site_id,series(id,title,cover_url)")
+      .select("id,chapter,chapter_url,created_at,site_id,series(id,title,cover_url,genres)")
       .in("series_id", ids).order("created_at", { ascending: false }).limit(60);
     return error ? [] : data;
   }
@@ -1146,10 +1381,20 @@
   $("#btn-readall").addEventListener("click", () => { saveSettings({ notifSeenAt: seenNow() }); updateBadge(); renderPop(); });
   $("#pop").addEventListener("click", (e) => { e.stopPropagation(); if (e.target.closest(".nrow")) closePop(); });
   document.addEventListener("click", () => closePop());
-  setInterval(refreshNews, 5 * 60 * 1000);
+  let refreshTimer;
+  function scheduleRefresh() {
+    clearInterval(refreshTimer);
+    if (settings.refreshMinutes > 0) refreshTimer = setInterval(refreshNews, settings.refreshMinutes * 60 * 1000);
+  }
   document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshNews(); });
 
   /* ---------- Paramètres ---------- */
+  // Genres proposés pour le floutage : ceux qui ressemblent à "adulte" + ceux déjà choisis
+  function blurCandidates() {
+    const re = /adult|mature|smut|hentai|erotic|ecchi|sexual|nsfw|18/i;
+    const all = [...ADULT_DEFAULT, ...genresList.filter((g) => re.test(g)), ...settings.blurGenres];
+    return [...new Map(all.map((g) => [g.toLowerCase(), g])).values()].sort((a, b) => a.localeCompare(b));
+  }
   async function renderSettings() {
     const seg = (key, opts) => `<div class="seg" role="group">${opts.map(([v, l]) => `<button data-set="${key}" data-v="${v}" aria-pressed="${settings[key] === v}">${l}</button>`).join("")}</div>`;
     const sw = (key, on) => `<button class="switch" role="switch" data-toggle="${key}" aria-checked="${on}" aria-label="Activer ou désactiver"></button>`;
@@ -1159,15 +1404,27 @@
       <div class="block"><h3>Compte</h3>
         <div class="row first"><div class="t"><b>${esc(session?.user?.email || "")}</b><span>Connecté</span></div><button class="btn secondary" data-act="logout">Se déconnecter</button></div></div>
 
+      <div class="block"><h3>Général</h3>
+        <div class="row first"><div class="t"><b>Page au démarrage</b><span>Page affichée à l’ouverture du site</span></div>
+          <select data-select="startTab" aria-label="Page au démarrage"><option value="last" ${settings.startTab === "last" ? "selected" : ""}>Dernière page ouverte</option>${NAV.map((n) => `<option value="${n.id}" ${settings.startTab === n.id ? "selected" : ""}>${n.label}</option>`).join("")}</select></div>
+        <div class="row"><div class="t"><b>Réduire les animations</b><span>Supprime les transitions et les mouvements</span></div>${sw("reduceMotion", settings.reduceMotion)}</div></div>
+
       <div class="block"><h3>Apparence</h3>
         <div class="row first"><div class="t"><b>Thème</b></div>${seg("theme", [["auto", "Auto"], ["light", "Clair"], ["dark", "Sombre"]])}</div>
         <div class="row"><div class="t"><b>Couleur d’accent</b></div><div class="swatches">${Object.keys(ACCENTS).map((k) => `<button class="swatch" data-set="accent" data-v="${k}" aria-pressed="${settings.accent === k}" aria-label="${ACCENT_NAMES[k]}" title="${ACCENT_NAMES[k]}" style="background:${ACCENTS[k][0]}"></button>`).join("")}</div></div>
         <div class="row"><div class="t"><b>Taille des couvertures</b></div>${seg("cardSize", [["compact", "Petite"], ["normal", "Moyenne"], ["grand", "Grande"]])}</div></div>
 
+      <div class="block"><h3>Contenu</h3>
+        <div class="row first"><div class="t"><b>Flouter les œuvres pour adultes</b><span>Couvertures floutées avec une pastille 18+ (tu peux les afficher depuis la fiche)</span></div>${sw("blurAdult", settings.blurAdult)}</div>
+        ${settings.blurAdult ? `<div class="row"><div class="t"><b>Genres concernés</b><span>Détecté d’après les genres : une série que le robot n’a pas encore analysée ne peut pas être floutée.</span></div>
+          <div class="chips">${blurCandidates().map((g) => `<button class="chip" data-blur="${esc(g)}" aria-pressed="${settings.blurGenres.some((x) => x.toLowerCase() === g.toLowerCase())}">${esc(g)}</button>`).join("")}</div></div>` : ""}</div>
+
       <div class="block"><h3>Lecture</h3>
         <div class="row first"><div class="t"><b>Site de lecture préféré</b><span>Sélectionné d’office sur la fiche d’une série</span></div>
           <select data-select="preferredSite" aria-label="Site de lecture préféré"><option value="">Le plus à jour</option>${[...sites].map(([id, n]) => `<option value="${esc(id)}" ${settings.preferredSite === id ? "selected" : ""}>${esc(n)}</option>`).join("")}</select></div>
-        <div class="row"><div class="t"><b>Ouvrir les chapitres dans un nouvel onglet</b></div>${sw("newTab", settings.newTab)}</div></div>
+        <div class="row"><div class="t"><b>Ordre des chapitres</b><span>Dans la liste de chaque fiche</span></div>${seg("chapterOrder", [["desc", "Récents d’abord"], ["asc", "Anciens d’abord"]])}</div>
+        <div class="row"><div class="t"><b>Ouvrir les chapitres dans un nouvel onglet</b></div>${sw("newTab", settings.newTab)}</div>
+        <div class="row"><div class="t"><b>Enregistrer mon historique de lecture</b><span>Désactivé : les chapitres ouverts ne sont pas mémorisés (ni « lu », ni « Reprendre »)</span></div>${sw("saveHistory", settings.saveHistory)}</div></div>
 
       <div class="block"><h3>Recherche</h3>
         <div class="row first"><div class="t"><b>Tri par défaut</b></div>
@@ -1176,8 +1433,10 @@
           <div class="chips">${[...sites].map(([id, n]) => `<button class="chip" data-hide="${esc(id)}" aria-pressed="${settings.hiddenSites.includes(id)}">${esc(n)}</button>`).join("")}</div></div></div>
 
       <div class="block"><h3>Notifications</h3>
-        <div class="row first"><div class="t"><b>Alertes du navigateur</b><span>${!notifOk ? "Non disponibles sur cet appareil." : perm === "denied" ? "Bloquées dans ton navigateur : autorise-les dans les réglages du site." : "Vérification toutes les 5 minutes, tant que la page reste ouverte."}</span></div>
-          ${notifOk && perm !== "denied" ? sw("browserNotif", settings.browserNotif && perm === "granted") : ""}</div></div>
+        <div class="row first"><div class="t"><b>Alertes du navigateur</b><span>${!notifOk ? "Non disponibles sur cet appareil." : perm === "denied" ? "Bloquées dans ton navigateur : autorise-les dans les réglages du site." : (settings.refreshMinutes ? `Vérification toutes les ${settings.refreshMinutes} minutes` : "Vérification automatique désactivée") + ", tant que la page reste ouverte."}</span></div>
+          ${notifOk && perm !== "denied" ? sw("browserNotif", settings.browserNotif && perm === "granted") : ""}</div>
+        <div class="row"><div class="t"><b>Vérifier les nouveaux chapitres</b><span>Actualise la cloche pendant que la page est ouverte</span></div>
+          <select data-select="refreshMinutes" aria-label="Fréquence de vérification">${[[5, "Toutes les 5 minutes"], [15, "Toutes les 15 minutes"], [30, "Toutes les 30 minutes"], [0, "Jamais automatiquement"]].map(([v, l]) => `<option value="${v}" ${settings.refreshMinutes === v ? "selected" : ""}>${l}</option>`).join("")}</select></div></div>
 
       <div class="block"><h3>Données</h3>
         <div class="row first"><div class="t"><b>Exporter mes données</b><span>Suivis, historique et réglages (fichier JSON)</span></div><button class="btn secondary" data-act="export">Exporter</button></div>
@@ -1191,7 +1450,12 @@
   }
 
   $("#settings-body").addEventListener("click", async (e) => {
-    const set = e.target.closest("[data-set]"), tog = e.target.closest("[data-toggle]"), hide = e.target.closest("[data-hide]"), act = e.target.closest("[data-act]");
+    const set = e.target.closest("[data-set]"), tog = e.target.closest("[data-toggle]"), hide = e.target.closest("[data-hide]"), act = e.target.closest("[data-act]"), blur = e.target.closest("[data-blur]");
+    if (blur) {
+      const arr = settings.blurGenres.filter((g) => g.toLowerCase() !== blur.dataset.blur.toLowerCase());
+      if (arr.length === settings.blurGenres.length) arr.push(blur.dataset.blur);
+      saveSettings({ blurGenres: arr }); state.searched = false; renderSettings();
+    }
     if (set) { saveSettings({ [set.dataset.set]: set.dataset.v }); renderSettings(); if (set.dataset.set === "defaultSort") state.searched = false; }
     if (hide) {
       const arr = settings.hiddenSites.slice(); toggleIn(arr, hide.dataset.hide);
@@ -1205,6 +1469,7 @@
         lastNotified = Date.now();
       }
       saveSettings({ [key]: on }); renderSettings();
+      if (key === "blurAdult") state.searched = false;
     }
     if (act?.dataset.act === "logout") await sb.auth.signOut();
     if (act?.dataset.act === "export") exportData();
@@ -1218,7 +1483,9 @@
   });
   $("#settings-body").addEventListener("change", (e) => {
     const sel = e.target.closest("[data-select]"); if (!sel) return;
-    saveSettings({ [sel.dataset.select]: sel.value }); state.searched = false;
+    const key = sel.dataset.select, val = key === "refreshMinutes" ? Number(sel.value) : sel.value;
+    saveSettings({ [key]: val }); state.searched = false;
+    if (key === "refreshMinutes") { scheduleRefresh(); renderSettings(); }
   });
 
   async function allRows(table, cols) {
@@ -1252,6 +1519,7 @@
     else if ($("#site-menu") && !$("#site-menu").hidden) closeSiteMenu();
     else if (!$("#filters").hidden) closeFilters();
     else if (!$("#detail").hidden) closeDetail();
+    else if (histSelecting) exitSelect();
     else closePop();
   });
 
@@ -1269,12 +1537,13 @@
     follows.clear(); newsCache = []; unreadSeries = new Set();
     if (!s) { hideDetail(); return; }
     await loadSettings();
+    scheduleRefresh();
     let fr = await sb.from("follows").select("series_id,notify");
     if (fr.error) fr = await sb.from("follows").select("series_id");   // schema_v3.sql pas encore lancé
     notifyOff.clear();
     (fr.data || []).forEach((r) => { follows.add(r.series_id); if (r.notify === false) notifyOff.add(r.series_id); });
     state.searched = false;
-    const tab = store.get("ms_tab");
+    const tab = settings.startTab && settings.startTab !== "last" ? settings.startTab : store.get("ms_tab");
     showTab(NAV.some((n) => n.id === tab) ? tab : "search");
     refreshNews().then(() => { if (state.tab === "search") refreshMarks(); });
     route();
