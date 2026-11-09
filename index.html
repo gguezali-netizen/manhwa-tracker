@@ -104,7 +104,11 @@
   .mark { position: absolute; z-index: 2; top: -2px; right: 9px; color: var(--accent); filter: drop-shadow(0 2px 3px rgba(0,0,0,.35)); }
   .mark svg { width: 26px; height: 32px; }
   .chap { position: absolute; z-index: 2; left: 9px; bottom: 8px; color: #fff; font-size: .82rem; font-weight: 700; }
-  .card .title { margin: 0; font-size: .95rem; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .card .title { margin: 0; min-height: 2.5em; font-size: .95rem; font-weight: 700; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; }
+  .card .prog { margin: -3px 0 0; font-size: .8rem; font-weight: 700; letter-spacing: .02em; color: var(--accent); }
+  .card .prog.done { color: var(--ok); }
+  .pbar { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; height: 4px; background: rgba(255,255,255,.35); }
+  .pbar i { display: block; height: 100%; background: var(--accent); }
   .card .meta { margin: -4px 0 0; font-size: .8rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   #sentinel { height: 1px; }
   .more { display: flex; margin: 26px auto 0; }
@@ -587,6 +591,7 @@
   const sites = new Map();                 // id -> nom
   const follows = new Set();               // ids des séries suivies
   const notifyOff = new Set();             // séries suivies dont les notifications sont coupées
+  const progress = new Map();              // série -> dernier chapitre lu (le plus élevé)
   let genresList = [];
   let stats = null;
   const state = { tab: "search", q: "", filters: { sites: [], types: [], statuses: [], genres: [], genreMode: "all", sort: null }, offset: 0, total: 0, token: 0, loading: false, searched: false };
@@ -623,18 +628,47 @@
     }
   }, true);
 
+  /* Avancement de lecture : "CH. 2 / 100" (dernier lu / dernier chapitre sorti) */
+  async function loadProgress() {
+    const m = new Map();
+    for (let from = 0; ; from += 1000) {
+      const { data, error } = await sb.from("reading_history").select("series_id,chapter").range(from, from + 999);
+      if (error) return;                                  // on garde l'ancien état
+      data.forEach((r) => { const n = Number(r.chapter); if (!(m.get(r.series_id) >= n)) m.set(r.series_id, n); });
+      if (data.length < 1000) break;
+    }
+    progress.clear(); m.forEach((v, k) => progress.set(k, v));
+  }
+  function progressState(id, total) {
+    const read = progress.get(id);
+    if (read == null) return null;
+    return { read, total, done: total >= 0 && read >= total, pct: total > 0 ? Math.min(100, Math.round((read / total) * 100)) : 0 };
+  }
+  const progText = (p) => `CH. ${fmt(p.read)}${p.total >= 0 ? ` / ${fmt(p.total)}` : ""}${p.done ? " ✓" : ""}`;
+  function applyProgress(card) {
+    const p = progressState(card.dataset.id, Number(card.dataset.total));
+    const prog = $(".prog", card), bar = $(".pbar", card), chap = $(".chap", card);
+    if (prog) { prog.hidden = !p; prog.textContent = p ? progText(p) : ""; prog.classList.toggle("done", !!p?.done); }
+    if (bar) { bar.hidden = !p; if (p) bar.firstElementChild.style.width = p.pct + "%"; }
+    if (chap) chap.hidden = !!p;
+  }
+  const refreshProgressUI = () => $$(".card[data-id]").forEach(applyProgress);
+
   function cardHtml(s) {
     const srcs = s.series_sources || [];
     const best = srcs.reduce((m, x) => Math.max(m, x.latest_chapter ?? -1), -1);
     const names = [...new Set(srcs.map((x) => siteName(x.site_id)))].join(" · ");
     const tag = unreadSeries.has(s.id) ? `<span class="tag new">Nouveau</span>` : s.type ? `<span class="tag">${esc(typeLabel(s.type))}</span>` : "";
-    return `<a class="card" href="#serie-${esc(s.id)}" data-id="${esc(s.id)}">
+    const p = progressState(s.id, best);
+    return `<a class="card" href="#serie-${esc(s.id)}" data-id="${esc(s.id)}" data-total="${best}">
       <div class="cover-wrap">${coverHtml(s)}${isAdult(s) ? `<span class="badge18" aria-label="Contenu pour adultes">18+</span>` : ""}${tag}
         ${follows.has(s.id) ? `<span class="mark" title="Suivi">${ICON.bookmarkFill}</span>` : ""}
-        ${best >= 0 ? `<span class="chap">Ch. ${fmt(best)}</span>` : ""}
+        ${best >= 0 ? `<span class="chap" ${p ? "hidden" : ""}>Ch. ${fmt(best)}</span>` : ""}
+        <span class="pbar" ${p ? "" : "hidden"}><i style="width:${p ? p.pct : 0}%"></i></span>
       </div>
       <h3 class="title">${esc(s.title)}</h3>
       <p class="meta">${esc(names)}</p>
+      <p class="prog ${p?.done ? "done" : ""}" ${p ? "" : "hidden"}>${p ? esc(progText(p)) : ""}</p>
     </a>`;
   }
   function refreshMarks() {
@@ -981,7 +1015,7 @@
       const read = cur.read.has(c.n);
       return `<a class="chrow ${read ? "read" : ""} ${c.n === lastRead ? "last" : ""}" href="${esc(safeUrl(r.url))}" ${linkAttrs()} data-read="${c.n}" data-site="${esc(r.siteId)}" data-n="${c.n}"><span>Chapitre ${fmt(c.n)}</span><span class="ctags">${c.n === lastRead ? `<span class="lr">dernier lu</span>` : ""}${via}${read ? "<span>✓</span>" : ""}</span></a>`;
     }).join("") : `<p class="empty-state" style="padding:26px">${m.list.length ? "Aucun chapitre ne correspond." : "Aucune liste de chapitres pour l’instant."}</p>`;
-    if (initial) { const el = box.querySelector(".chrow.last"); if (el) box.scrollTop = Math.max(0, el.offsetTop - 80); }
+    box.scrollTop = 0;                       // la liste commence toujours en haut, dans l’ordre choisi
   }
 
   // Met à jour les boutons qui changent sans tout redessiner
@@ -1010,6 +1044,7 @@
   async function markRead(n, siteId, url) {
     if (!session || !cur || !settings.saveHistory) return;
     const seriesId = cur.s.id;
+    if (!(progress.get(seriesId) >= n)) { progress.set(seriesId, n); refreshProgressUI(); }
     if (!cur.read.has(n)) { cur.read.add(n); $(`#ch-list .chrow[data-n="${CSS.escape(String(n))}"]`)?.classList.add("read"); }
     await sb.from("reading_history").upsert({
       user_id: session.user.id, series_id: seriesId, chapter: n, site_id: siteId, chapter_url: url, read_at: new Date().toISOString(),
@@ -1226,6 +1261,7 @@
     const res = await Promise.all([...bySeries].map(([sid, chs]) => sb.from("reading_history").delete().eq("series_id", sid).in("chapter", chs)));
     const bad = res.find((r) => r.error);
     if (bad) { toast("Suppression impossible : " + bad.error.message); loadHistory(true); return; }
+    loadProgress().then(refreshProgressUI);
     toast(items.length === 1 ? "Retiré de l’historique" : `${items.length} éléments retirés`, { label: "Annuler", fn: () => restoreHistory(items) });
   }
   async function restoreHistory(items) {
@@ -1233,6 +1269,7 @@
       user_id: session.user.id, series_id: it.series_id, chapter: it.chapter, site_id: it.site_id, chapter_url: it.chapter_url, read_at: it.read_at,
     })));
     toast(error ? "Impossible de rétablir : " + error.message : "Rétabli");
+    loadProgress().then(refreshProgressUI);
     loadHistory(true);
   }
 
@@ -1475,6 +1512,7 @@
     if (act?.dataset.act === "export") exportData();
     if (act?.dataset.act === "clear-history" && confirm("Supprimer tout ton historique de lecture ?")) {
       const { error } = await sb.from("reading_history").delete().eq("user_id", session.user.id);
+      if (!error) { progress.clear(); refreshProgressUI(); }
       toast(error ? "Action impossible : " + error.message : "Historique vidé");
     }
     if (act?.dataset.act === "reset-settings" && confirm("Remettre tous les réglages par défaut ?")) {
@@ -1534,7 +1572,7 @@
   async function onSession(s) {
     session = s;
     $("#login").hidden = !!s; $("#app").hidden = !s;
-    follows.clear(); newsCache = []; unreadSeries = new Set();
+    follows.clear(); progress.clear(); newsCache = []; unreadSeries = new Set();
     if (!s) { hideDetail(); return; }
     await loadSettings();
     scheduleRefresh();
@@ -1542,6 +1580,7 @@
     if (fr.error) fr = await sb.from("follows").select("series_id");   // schema_v3.sql pas encore lancé
     notifyOff.clear();
     (fr.data || []).forEach((r) => { follows.add(r.series_id); if (r.notify === false) notifyOff.add(r.series_id); });
+    await loadProgress();
     state.searched = false;
     const tab = settings.startTab && settings.startTab !== "last" ? settings.startTab : store.get("ms_tab");
     showTab(NAV.some((n) => n.id === tab) ? tab : "search");
