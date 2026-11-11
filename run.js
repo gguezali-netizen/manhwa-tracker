@@ -2,6 +2,7 @@ import { createClient } from '@supabase/supabase-js';
 import { normTitle, sleep } from './lib.js';
 import * as asura from './sites/asura.js';
 import * as mangaread from './sites/mangaread.js';
+import * as comizy from './sites/comizy.js';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
@@ -9,7 +10,7 @@ const full = args.includes('--full');            // parcourt tout le catalogue
 const dry = args.includes('--dry');              // affiche seulement, n'écrit rien
 const probe = args.includes('--probe');          // teste la lecture d'une page de série par site
 const only = flag('site');
-const modules = [asura, mangaread].filter((m) => !only || m.site.id === only);
+const modules = [asura, mangaread, comizy].filter((m) => !only || m.site.id === only);
 
 // Combien de pages de séries on analyse (genres, résumé, chapitres) à chaque passage
 const DETAIL_LIMIT = args.includes('--no-details') ? 0 : Number(flag('details') ?? (full ? 300 : 100));
@@ -19,6 +20,7 @@ if (probe) {
   const SAMPLES = {
     asura: 'https://asurascans.com/comics/the-world-after-the-end-ab39de10',
     mangaread: 'https://www.mangaread.org/manga/swordmasters-youngest-son/',
+    comizy: 'https://comizy.io/under-the-oak-tree',
   };
   for (const m of modules) {
     console.log(`\n== ${m.site.name} : ${SAMPLES[m.site.id]} ==`);
@@ -126,6 +128,12 @@ async function enrich(mod, touchedUrls) {
 }
 
 // ---------- Boucle principale ----------
+const failedSites = new Set();
+// Un site qui refuse l'accès est signalé par un avertissement (visible dans le résumé GitHub), sans faire échouer tout le passage
+function warn(title, message) {
+  console.error(`ATTENTION ${title} : ${message}`);
+  if (process.env.GITHUB_ACTIONS) console.log(`::warning title=${title}::${message}`);
+}
 for (const mod of modules) {
   const { site, crawl } = mod;
   console.log(`\n== ${site.name} ${full ? '(catalogue complet)' : '(mise à jour rapide)'} ==`);
@@ -167,9 +175,13 @@ for (const mod of modules) {
         touched.add(i.url);
         console.log(`  nouveau chapitre : ${i.title} -> ${i.latestChapter}`);
       }
+      // Si la page n'indique pas de numéro (ex. chapitre bonus), on garde ce qu'on savait déjà
+      const keep = i.latestChapter == null && prev && prev.latest_chapter != null;
       sources.set(i.url, {
         series_id, site_id: site.id, url: i.url, title_on_site: i.title, cover_url: i.cover,
-        chapter_count: i.chapterCount, latest_chapter: i.latestChapter, latest_chapter_url: i.latestChapterUrl, checked_at: now,
+        chapter_count: i.chapterCount ?? prev?.chapter_count ?? null,
+        latest_chapter: keep ? prev.latest_chapter : i.latestChapter,
+        latest_chapter_url: keep ? prev.latest_chapter_url : i.latestChapterUrl, checked_at: now,
       });
     }
     for (const c of chunks([...sources.values()], 200)) {
@@ -182,14 +194,18 @@ for (const mod of modules) {
     }
     console.log(`OK : ${sources.size} séries enregistrées, ${events.length} nouveau(x) chapitre(s).`);
   } catch (e) {
-    console.error(`ERREUR sur ${site.name} : ${e.message}`);
-    process.exitCode = 1; // on continue avec le site suivant
+    failedSites.add(site.id);
+    const hint = /HTTP 403/.test(e.message) ? ' (le site refuse l’accès au robot, probablement un blocage des serveurs GitHub)' : '';
+    warn(`${site.name} injoignable`, `${e.message}${hint}. Les autres sites continuent.`);
     continue;
   }
 
   // 3) analyse des pages de séries (séparée : une erreur ici n'annule pas la mise à jour ci-dessus)
   if (!dry) {
     try { await enrich(mod, touched); }
-    catch (e) { console.error(`ERREUR détails ${site.name} : ${e.message} (as-tu bien exécuté schema_v2.sql dans Supabase ?)`); process.exitCode = 1; }
+    catch (e) { warn(`Détails ${site.name}`, `${e.message} (as-tu bien exécuté schema_v2.sql et schema_v3.sql dans Supabase ?)`); }
   }
 }
+
+// Échec complet seulement si AUCUN site n'a pu être lu
+if (!dry && modules.length && failedSites.size === modules.length) process.exitCode = 1;

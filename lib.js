@@ -68,7 +68,7 @@ export const cleanText = (s) => String(s || '').replace(/\s+/g, ' ').trim();
 export const titleCase = (s) =>
   s.toLowerCase().replace(/(^|[\s-])([a-z0-9])/g, (m, p, c) => p + c.toUpperCase()).replace(/\bOf\b/g, 'of');
 
-const TYPE_WORDS = ['manhwa', 'manhua', 'manga', 'webtoon', 'comic', 'doujinshi', 'novel'];
+const TYPE_WORDS = ['manhwa', 'manhua', 'manga', 'webtoon', 'webtoons', 'comic', 'doujinshi', 'novel'];
 
 export function normType(raw, genres = []) {
   const t = String(raw || '').toLowerCase();
@@ -80,7 +80,7 @@ export function normType(raw, genres = []) {
 
 export function normStatus(raw, genres = []) {
   const t = String(raw || '').toLowerCase();
-  if (/ongoing|on-going|publishing/.test(t)) return 'ongoing';
+  if (/ongoing|on-going|publishing|releasing/.test(t)) return 'ongoing';
   if (/complete|finish/.test(t)) return 'completed';
   if (/hiatus|hold|pause/.test(t)) return 'hiatus';
   if (/cancel|drop|discontinu/.test(t)) return 'dropped';
