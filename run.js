@@ -3,6 +3,7 @@ import { normTitle, sleep } from './lib.js';
 import * as asura from './sites/asura.js';
 import * as mangaread from './sites/mangaread.js';
 import * as comizy from './sites/comizy.js';
+import { ntfyConfig, notifyNewChapters, publish } from './ntfy.js';
 
 const args = process.argv.slice(2);
 const flag = (name) => args.find((a) => a.startsWith(`--${name}=`))?.split('=')[1];
@@ -14,6 +15,19 @@ const modules = [asura, mangaread, comizy].filter((m) => !only || m.site.id === 
 
 // Combien de pages de séries on analyse (genres, résumé, chapitres) à chaque passage
 const DETAIL_LIMIT = args.includes('--no-details') ? 0 : Number(flag('details') ?? (full ? 300 : 100));
+
+// ---------- Notifications ntfy ----------
+const ntfy = ntfyConfig();
+
+// node run.js --test-ntfy : envoie une notification de test (aucune lecture de site, aucune écriture)
+if (args.includes('--test-ntfy')) {
+  if (!ntfy.topic) { console.error('NTFY_TOPIC est vide : ajoute-le dans le fichier .env (voir le tutoriel).'); process.exit(1); }
+  try {
+    await publish(ntfy, { title: 'Test des notifications', message: 'Si tu lis ceci, ntfy fonctionne.', tags: ['white_check_mark'] });
+    console.log(`Notification de test envoyée au sujet « ${ntfy.topic.slice(0, 4)}… » sur ${ntfy.server}`);
+    process.exit(0);
+  } catch (e) { console.error('Échec de l’envoi : ' + e.message); process.exit(1); }
+}
 
 // ---------- Test d'une page de série (aucune écriture) ----------
 if (probe) {
@@ -166,12 +180,14 @@ for (const mod of modules) {
     // 2) enregistrer où lire chaque série + détecter les nouveaux chapitres
     const now = new Date().toISOString();
     const events = [];
+    const toNotify = [];
     const sources = new Map();
     for (const i of items) {
       const series_id = idByNorm.get(normTitle(i.title));
       const prev = known.get(i.url);
       if (prev && prev.latest_chapter != null && i.latestChapter != null && i.latestChapter > Number(prev.latest_chapter)) {
         events.push({ series_id, site_id: site.id, chapter: i.latestChapter, chapter_url: i.latestChapterUrl });
+        toNotify.push({ series_id, title: i.title, site: site.name, chapter: i.latestChapter, url: i.latestChapterUrl });
         touched.add(i.url);
         console.log(`  nouveau chapitre : ${i.title} -> ${i.latestChapter}`);
       }
@@ -191,6 +207,13 @@ for (const mod of modules) {
     if (events.length) {
       const { error } = await sb.from('chapter_events').insert(events);
       if (error) throw error;
+    }
+    // Notification sur le téléphone (si NTFY_TOPIC est défini)
+    if (ntfy.topic && toNotify.length) {
+      try {
+        const n = await notifyNewChapters({ sb, events: toNotify, cfg: ntfy });
+        if (n) console.log(`  ${n} notification(s) ntfy envoyée(s)`);
+      } catch (e) { warn('Notifications ntfy', e.message); }
     }
     console.log(`OK : ${sources.size} séries enregistrées, ${events.length} nouveau(x) chapitre(s).`);
   } catch (e) {
